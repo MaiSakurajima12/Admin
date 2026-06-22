@@ -307,30 +307,33 @@ class AdminModel {
         (reports || []).forEach((report) => {
             if (!report.usuario_id) return;
             const list = reportsByUser.get(report.usuario_id) || [];
-            list.push(new Date(report.fecha_creacion));
+            list.push({ id: report.id, fecha_creacion: report.fecha_creacion });
             reportsByUser.set(report.usuario_id, list);
         });
 
-        let before = 0;
-        let after = 0;
+        const beforeSet = new Set();
+        const afterSet = new Set();
         const windowMs = 7 * 24 * 60 * 60 * 1000;
+
         uses.forEach((use) => {
             if (!use.usuario_id || !use.fecha_creacion) return;
             const reference = new Date(use.fecha_creacion);
             const userReports = reportsByUser.get(use.usuario_id) || [];
-            userReports.forEach((reportDate) => {
+            userReports.forEach((report) => {
+                if (!report.id || !report.fecha_creacion) return;
+                const reportDate = new Date(report.fecha_creacion);
                 const diff = reportDate - reference;
                 if (diff >= 0 && diff <= windowMs) {
-                    after += 1;
+                    afterSet.add(report.id);
                 } else if (diff < 0 && diff >= -windowMs) {
-                    before += 1;
+                    beforeSet.add(report.id);
                 }
             });
         });
 
         return {
-            ticketsBeforeFaq: before,
-            ticketsAfterFaq: after,
+            ticketsBeforeFaq: beforeSet.size,
+            ticketsAfterFaq: afterSet.size,
             windowDays: 7
         };
     }
