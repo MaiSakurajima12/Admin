@@ -17,7 +17,7 @@
                 </a>
                 <div class="navbar-actions d-flex align-items-center gap-3 ms-auto">
                     <div class="dropdown">
-                        <button class="btn avatar-circle" data-bs-toggle="dropdown">
+                                <button class="btn avatar-circle" data-bs-toggle="dropdown" aria-expanded="false">
                             <% if (user && user.avatar_url) { %>
                                 <img src="<%= user.avatar_url %>" alt="Avatar" class="avatar-image">
                             <% } else { %>
@@ -25,7 +25,7 @@
                             <% } %>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/perfil"><i class="fa-solid fa-user me-2"></i>Perfil</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="window.location.href='/perfil?returnTo='+encodeURIComponent(window.location.pathname); return false;"><i class="fa-solid fa-user me-2"></i>Perfil</a></li>
                         </ul>
                     </div>
                 </div>

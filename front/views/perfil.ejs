@@ -15,7 +15,7 @@
                 <img style="width: 25%; height: auto;" src="/public/img/maxgradeplacapng.png" alt="MaxGrade" class="navbar-logo">
             </a>
             <span class="navbar-brand fw-bold"><i class="fa-solid fa-user me-2" style="color: #4c63ff;"></i>Mi Perfil</span>
-            <a class="btn btn-light me-2" href="/dashboard"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+            <a id="backTo" class="btn btn-light me-2" href="/dashboard"><i class="fa-solid fa-arrow-left"></i> Volver</a>
         </div>
     </nav>
 
@@ -94,5 +94,19 @@
     </main>
 
     <script src="/public/js/perfil.js"></script>
+    <script>
+        (function() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const rt = params.get('returnTo');
+                if (rt) {
+                    const back = document.getElementById('backTo');
+                    if (back) back.setAttribute('href', rt);
+                }
+            } catch (e) {
+                // ignore
+            }
+        })();
+    </script>
 </body>
 </html>
