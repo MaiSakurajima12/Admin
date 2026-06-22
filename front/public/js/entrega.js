@@ -181,14 +181,13 @@ function renderInlinePreview(containerId, url) {
     if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         const img = document.createElement('img');
         img.src = url;
-        img.className = 'img-fluid rounded';
-        img.style.maxHeight = '320px';
+        img.className = 'preview-img rounded';
+        img.style.maxHeight = '80vh';
         container.appendChild(img);
     } else if (url.match(/\.pdf$/i)) {
         const iframe = document.createElement('iframe');
         iframe.src = url;
-        iframe.style.width = '100%';
-        iframe.style.height = '420px';
+        iframe.className = 'preview-embed';
         iframe.setAttribute('aria-label', 'Vista previa PDF');
         container.appendChild(iframe);
     } else {
