@@ -82,14 +82,25 @@ class AdminModel {
         const active30 = new Date(now);
         active30.setDate(active30.getDate() - 30);
 
-        const [totalUsersResp, newWeekResp, newMonthResp, activeUsersResp, adminCountResp, supportCountResp] = await Promise.all([
+        const [totalUsersResp, newWeekResp, newMonthResp, activeUsersResp, adminCountResp, supportCountResp, enrollmentResp] = await Promise.all([
             supabase.from('usuarios').select('id', { count: 'exact', head: true }),
             supabase.from('usuarios').select('id', { count: 'exact', head: true }).gte('fecha_registro', last7.toISOString()),
             supabase.from('usuarios').select('id', { count: 'exact', head: true }).gte('fecha_registro', last30.toISOString()),
             supabase.from('usuarios').select('id', { count: 'exact', head: true }).gte('ultimo_login', active30.toISOString()),
             supabase.from('usuarios').select('id', { count: 'exact', head: true }).eq('is_admin', true),
-            supabase.from('usuarios').select('id', { count: 'exact', head: true }).eq('is_support', true)
+            supabase.from('usuarios').select('id', { count: 'exact', head: true }).eq('is_support', true),
+            supabase.from('inscripciones').select('estudiante_id, rol_en_clase')
         ]);
+
+        const professorIds = new Set();
+        const studentIds = new Set();
+        (enrollmentResp.data || []).forEach((enrollment) => {
+            if (enrollment.rol_en_clase === 'profesor') {
+                professorIds.add(enrollment.estudiante_id);
+            } else if (enrollment.rol_en_clase === 'estudiante') {
+                studentIds.add(enrollment.estudiante_id);
+            }
+        });
 
         return {
             totalRegistered: totalUsersResp.count || 0,
@@ -97,8 +108,8 @@ class AdminModel {
             newUsersLastMonth: newMonthResp.count || 0,
             activeUsersLast30Days: activeUsersResp.count || 0,
             distributionByRole: {
-                profesores: 0,
-                estudiantes: 0,
+                profesores: professorIds.size,
+                estudiantes: studentIds.size,
                 tecnicos: supportCountResp.count || 0,
                 administradores: adminCountResp.count || 0
             }

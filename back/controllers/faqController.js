@@ -46,11 +46,11 @@ exports.listAdminFaqs = async (req, res) => {
 
 exports.createFaq = async (req, res) => {
     try {
-        const { pregunta, respuesta, categoria, orden, activo } = req.body;
+        const { pregunta, respuesta, categoria, activo } = req.body;
         if (!pregunta || !respuesta) {
             return res.status(400).json({ error: 'Pregunta y respuesta son obligatorios' });
         }
-        const { data, error } = await FaqModel.create({ pregunta, respuesta, categoria, orden, activo });
+        const { data, error } = await FaqModel.create({ pregunta, respuesta, categoria, activo });
         if (error) throw error;
         res.status(201).json({ message: 'FAQ creada', faq: data?.[0] || null });
     } catch (err) {
@@ -62,11 +62,11 @@ exports.createFaq = async (req, res) => {
 exports.updateFaq = async (req, res) => {
     try {
         const faqId = req.params.id;
-        const { pregunta, respuesta, categoria, orden, activo } = req.body;
+        const { pregunta, respuesta, categoria, activo } = req.body;
         if (!pregunta || !respuesta) {
             return res.status(400).json({ error: 'Pregunta y respuesta son obligatorios' });
         }
-        const { data, error } = await FaqModel.update(faqId, { pregunta, respuesta, categoria, orden, activo });
+        const { data, error } = await FaqModel.update(faqId, { pregunta, respuesta, categoria, activo });
         if (error) throw error;
         res.json({ message: 'FAQ actualizada', faq: data?.[0] || null });
     } catch (err) {

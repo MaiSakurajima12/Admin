@@ -5,8 +5,7 @@ class FaqModel {
         const { data, error } = await supabase
             .from('faqs')
             .select('*')
-            .eq('activo', true)
-            .order('orden', { ascending: true });
+            .eq('activo', true);
         return { data, error };
     }
 
@@ -25,7 +24,6 @@ class FaqModel {
                 pregunta: faqData.pregunta,
                 respuesta: faqData.respuesta,
                 categoria: faqData.categoria || null,
-                orden: faqData.orden || 0,
                 activo: faqData.activo !== undefined ? faqData.activo : true
             }])
             .select();
@@ -39,7 +37,6 @@ class FaqModel {
                 pregunta: faqData.pregunta,
                 respuesta: faqData.respuesta,
                 categoria: faqData.categoria || null,
-                orden: faqData.orden || 0,
                 activo: faqData.activo !== undefined ? faqData.activo : true
             })
             .eq('id', id)

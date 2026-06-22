@@ -81,7 +81,6 @@ function renderFaqUsageTable(items) {
             <td>${escapeHtml(faq.categoria || 'General')}</td>
             <td>${formatNumber(faq.contador_usos)}</td>
             <td>${faq.activo ? 'Sí' : 'No'}</td>
-            <td>${escapeHtml(String(faq.orden || 0))}</td>
         </tr>
     `).join('');
 }
@@ -207,7 +206,6 @@ function renderAdminFaqsTable(items) {
             <td>${escapeHtml(faq.categoria || 'General')}</td>
             <td>${faq.activo ? 'Sí' : 'No'}</td>
             <td>${formatNumber(faq.contador_usos)}</td>
-            <td>${escapeHtml(String(faq.orden || 0))}</td>
             <td class="text-end">
                 <button class="btn btn-sm btn-outline-primary me-2" onclick="openFaqModal('${faq.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button class="btn btn-sm btn-outline-danger" onclick="deleteFaq('${faq.id}')"><i class="fa-solid fa-trash"></i></button>
@@ -223,7 +221,6 @@ function openFaqModal(id = null) {
     const questionInput = document.getElementById('faqQuestion');
     const answerInput = document.getElementById('faqAnswer');
     const categoryInput = document.getElementById('faqCategory');
-    const orderInput = document.getElementById('faqOrder');
     const activeInput = document.getElementById('faqActive');
     const errorBox = document.getElementById('faqFormError');
 
@@ -238,7 +235,6 @@ function openFaqModal(id = null) {
         questionInput.value = faq.pregunta || '';
         answerInput.value = faq.respuesta || '';
         categoryInput.value = faq.categoria || '';
-        orderInput.value = faq.orden || 0;
         activeInput.checked = faq.activo;
     } else {
         formTitle.textContent = 'Crear FAQ';
@@ -246,7 +242,6 @@ function openFaqModal(id = null) {
         questionInput.value = '';
         answerInput.value = '';
         categoryInput.value = '';
-        orderInput.value = 0;
         activeInput.checked = true;
     }
 
@@ -258,7 +253,6 @@ async function submitFaqForm(btn) {
     const question = document.getElementById('faqQuestion').value.trim();
     const answer = document.getElementById('faqAnswer').value.trim();
     const category = document.getElementById('faqCategory').value.trim();
-    const order = Number(document.getElementById('faqOrder').value || 0);
     const active = document.getElementById('faqActive').checked;
     const errorBox = document.getElementById('faqFormError');
 
@@ -272,7 +266,7 @@ async function submitFaqForm(btn) {
     errorBox.classList.add('d-none');
 
     try {
-        const payload = { pregunta: question, respuesta: answer, categoria: category, orden: order, activo };
+        const payload = { pregunta: question, respuesta: answer, categoria: category, activo };
         const url = faqId ? `/api/faqs/admin/${faqId}` : '/api/faqs/admin';
         const method = faqId ? 'PUT' : 'POST';
         await fetchJson(url, {
@@ -309,13 +303,12 @@ async function deleteFaq(id) {
 }
 
 function exportFaqCsv() {
-    const headers = ['Pregunta', 'Respuesta', 'Categoría', 'Activo', 'Orden', 'Usos'];
+    const headers = ['Pregunta', 'Respuesta', 'Categoría', 'Activo', 'Usos'];
     const rows = faqUsageList.map((faq) => [
         faq.pregunta || '',
         faq.respuesta || '',
         faq.categoria || '',
         faq.activo ? 'Sí' : 'No',
-        faq.orden || 0,
         faq.contador_usos || 0
     ]);
 
