@@ -21,12 +21,14 @@ function populateText(id, value) {
     if (el) el.textContent = value;
 }
 
-async function loadAdminMetrics(range = '30d') {
+async function loadAdminMetrics(range = '30d', faqId = '') {
     document.getElementById('adminLoading').classList.remove('d-none');
     document.getElementById('adminContent').classList.add('d-none');
 
     try {
-        const data = await fetchJson(`/api/admin/metrics?range=${encodeURIComponent(range)}`);
+        let url = `/api/admin/metrics?range=${encodeURIComponent(range)}`;
+        if (faqId) url += `&faqId=${encodeURIComponent(faqId)}`;
+        const data = await fetchJson(url);
         renderMetrics(data);
         await loadAdminFaqs();
     } catch (err) {
@@ -88,6 +90,11 @@ function renderFaqUsageTable(items) {
 function renderTrendChart(trends) {
     const ctx = document.getElementById('trendChart');
     if (!ctx) return;
+    const palette = {
+        registrations: { border: '#4c63ff', bg: 'rgba(76,99,255,0.16)' },
+        deliveries: { border: '#0dcf8b', bg: 'rgba(13,207,139,0.12)' },
+        tickets: { border: '#ff8a3d', bg: 'rgba(255,138,61,0.12)' }
+    };
 
     const data = {
         labels: trends.labels,
@@ -95,47 +102,65 @@ function renderTrendChart(trends) {
             {
                 label: 'Registros',
                 data: trends.registrations,
-                borderColor: '#4c63ff',
-                backgroundColor: 'rgba(76,99,255,0.12)',
-                tension: 0.3,
-                fill: true
+                borderColor: palette.registrations.border,
+                backgroundColor: palette.registrations.bg,
+                tension: 0.36,
+                fill: true,
+                pointRadius: 3,
+                pointHoverRadius: 6
             },
             {
                 label: 'Entregas',
                 data: trends.deliveries,
-                borderColor: '#198754',
-                backgroundColor: 'rgba(25,135,84,0.12)',
-                tension: 0.3,
-                fill: true
+                borderColor: palette.deliveries.border,
+                backgroundColor: palette.deliveries.bg,
+                tension: 0.36,
+                fill: true,
+                pointRadius: 3,
+                pointHoverRadius: 6
             },
             {
                 label: 'Tickets',
                 data: trends.tickets,
-                borderColor: '#fd7e14',
-                backgroundColor: 'rgba(253,126,20,0.12)',
-                tension: 0.3,
-                fill: true
+                borderColor: palette.tickets.border,
+                backgroundColor: palette.tickets.bg,
+                tension: 0.36,
+                fill: true,
+                pointRadius: 3,
+                pointHoverRadius: 6
             }
         ]
     };
 
+    const options = {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { position: 'top' },
+            tooltip: {
+                callbacks: {
+                    label: (context) => {
+                        const v = context.parsed.y ?? context.parsed ?? 0;
+                        return `${context.dataset.label}: ${Number(v).toLocaleString('es-ES')}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: { display: true },
+            y: { display: true, beginAtZero: true }
+        }
+    };
+
     if (trendChart) {
         trendChart.data = data;
+        trendChart.options = options;
         trendChart.update();
     } else {
         trendChart = new Chart(ctx, {
             type: 'line',
             data,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' }
-                },
-                scales: {
-                    x: { display: true },
-                    y: { display: true, beginAtZero: true }
-                }
-            }
+            options
         });
     }
 }
@@ -165,29 +190,48 @@ function renderSupportStateChart(stateData = {}, typeData = {}) {
         overlay.classList.add('d-none');
     }
 
-    const colors = ['#0d6efd', '#ffc107', '#198754', '#6f42c1', '#fd7e14', '#6c757d'];
-    const backgroundColor = labels.map((_, index) => colors[index % colors.length]);
+    const palette = ['#4c63ff', '#ffc107', '#0dcf8b', '#6f42c1', '#ff8a3d', '#6c757d'];
+    const backgroundColor = labels.map((_, index) => palette[index % palette.length]);
 
     const data = {
         labels,
         datasets: [{
             data: values,
             backgroundColor,
-            borderColor: '#fff',
-            borderWidth: 1
+            borderColor: '#ffffff',
+            borderWidth: 2
         }]
     };
 
-    supportStateChart = new Chart(ctx, {
-        type: 'doughnut',
-        data,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' }
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+                callbacks: {
+                    label: (ctx) => {
+                        const v = ctx.parsed ?? 0;
+                        const total = values.reduce((a,b) => a + b, 0) || 1;
+                        const pct = ((v/total)*100).toFixed(1);
+                        return `${ctx.label}: ${v} (${pct}%)`;
+                    }
+                }
             }
-        }
-    });
+        },
+        hoverOffset: 8
+    };
+
+    if (supportStateChart) {
+        supportStateChart.data = data;
+        supportStateChart.options = options;
+        supportStateChart.update();
+    } else {
+        supportStateChart = new Chart(ctx, {
+            type: 'doughnut',
+            data,
+            options
+        });
+    }
 }
 
 async function loadAdminFaqs() {
@@ -195,10 +239,22 @@ async function loadAdminFaqs() {
         const data = await fetchJson('/api/faqs/admin');
         adminFaqs = data || [];
         renderAdminFaqsTable(adminFaqs);
+        populateFaqSelector(adminFaqs);
     } catch (err) {
         console.error('Error cargando FAQs de administrador:', err);
         document.getElementById('adminFaqsTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">No se pudieron cargar las FAQs de admin.</td></tr>';
     }
+}
+
+function populateFaqSelector(faqs) {
+    const sel = document.getElementById('faqSelect');
+    if (!sel) return;
+    // keep default option
+    sel.innerHTML = '<option value="">Última FAQ</option>' + (faqs || []).map(f => `<option value="${f.id}">${escapeHtml(f.pregunta || '').slice(0,60)}</option>`).join('');
+    sel.addEventListener('change', () => {
+        const range = document.getElementById('rangeSelect')?.value || '30d';
+        loadAdminMetrics(range, sel.value);
+    });
 }
 
 function renderAdminFaqsTable(items) {

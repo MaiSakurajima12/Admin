@@ -48,6 +48,10 @@
                     <option value="30d" selected>Últimos 30 días</option>
                     <option value="90d">Últimos 90 días</option>
                 </select>
+                <label class="mb-0 ms-3">FAQ</label>
+                <select id="faqSelect" class="form-select form-select-sm" style="width: auto;">
+                    <option value="">Última FAQ</option>
+                </select>
             </div>
         </div>
 
@@ -60,38 +64,42 @@
             <section class="mb-4">
                 <div class="row g-3">
                     <div class="col-md-6 col-xl-3">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body py-4">
-                                <p class="text-uppercase fw-semibold mb-2">Usuarios registrados</p>
-                                <h3 id="totalUsers" class="mb-1">0</h3>
-                                <p class="text-muted mb-0">Activos últimos 30 días: <span id="activeUsers">0</span></p>
+                        <div class="kpi-card">
+                            <div class="kpi-icon bg-blue">U</div>
+                            <div>
+                                <p class="text-uppercase fw-semibold mb-1">Usuarios registrados</p>
+                                <h4 id="totalUsers">0</h4>
+                                <p class="mb-0">Activos últimos 30 días: <span id="activeUsers">0</span></p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body py-4">
-                                <p class="text-uppercase fw-semibold mb-2">Académico</p>
-                                <h3 id="activeClasses" class="mb-1">0</h3>
-                                <p class="text-muted mb-0">Clases activas</p>
+                        <div class="kpi-card">
+                            <div class="kpi-icon bg-green">C</div>
+                            <div>
+                                <p class="text-uppercase fw-semibold mb-1">Académico</p>
+                                <h4 id="activeClasses">0</h4>
+                                <p class="mb-0">Clases activas</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body py-4">
-                                <p class="text-uppercase fw-semibold mb-2">Rúbricas</p>
-                                <h3 id="rubricsCreated" class="mb-1">0</h3>
-                                <p class="text-muted mb-0">Rubricas creadas</p>
+                        <div class="kpi-card">
+                            <div class="kpi-icon bg-green">R</div>
+                            <div>
+                                <p class="text-uppercase fw-semibold mb-1">Rúbricas</p>
+                                <h4 id="rubricsCreated">0</h4>
+                                <p class="mb-0">Rubricas creadas</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body py-4">
-                                <p class="text-uppercase fw-semibold mb-2">Soporte</p>
-                                <h3 id="totalReports" class="mb-1">0</h3>
-                                <p class="text-muted mb-0">Tickets totales</p>
+                        <div class="kpi-card">
+                            <div class="kpi-icon bg-purple">S</div>
+                            <div>
+                                <p class="text-uppercase fw-semibold mb-1">Soporte</p>
+                                <h4 id="totalReports">0</h4>
+                                <p class="mb-0">Tickets totales</p>
                             </div>
                         </div>
                     </div>

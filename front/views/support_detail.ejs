@@ -41,40 +41,52 @@
                     <h2>Reporte: <small class="text-muted">#<%= report.id %></small></h2>
                 </div>
 
-                <div class="card">
-                    <div class="card-body">
-                        <p><strong>Tipo:</strong> <%= report.tipo_problema %></p>
-                        <p><strong>Creado por:</strong> <%= reporter ? (reporter.nombre + ' ' + (reporter.apellido||'')) : report.usuario_id %></p>
-                        <p><strong>Asignado a:</strong> <%= report.asignado ? (report.asignado.nombre + ' ' + (report.asignado.apellido||'')) : '—' %></p>
-                        <p><strong>Fecha:</strong> <%= new Date(report.fecha_creacion).toLocaleString() %></p>
-                        <p><strong>Descripción:</strong></p>
-                        <p><%= report.descripcion %></p>
+                <div class="report-detail-card">
+                    <div class="report-meta">
+                        <div class="report-avatar">
+                            <% if (reporter && reporter.nombre) { %>
+                                <%= (reporter.nombre.charAt(0) + (reporter.apellido ? reporter.apellido.charAt(0) : '')).toUpperCase() %>
+                            <% } else { %>
+                                <%= String(report.usuario_id).slice(0,2).toUpperCase() %>
+                            <% } %>
+                        </div>
+                        <div class="meta-list">
+                            <div class="meta-item"><strong>Tipo:</strong> <span class="text-muted"><%= report.tipo_problema %></span></div>
+                            <div class="meta-item"><strong>Creado por:</strong> <span class="text-muted"><%= reporter ? (reporter.nombre + ' ' + (reporter.apellido||'')) : report.usuario_id %></span></div>
+                            <div class="meta-item"><strong>Asignado a:</strong> <span class="text-muted"><%= report.asignado ? (report.asignado.nombre + ' ' + (report.asignado.apellido||'')) : '—' %></span></div>
+                            <div class="meta-item"><strong>Fecha:</strong> <span class="text-muted"><%= new Date(report.fecha_creacion).toLocaleString() %></span></div>
+                        </div>
+                    </div>
 
-                        <% if (report.url_evidencia) { %>
-                            <div class="mb-3">
-                                <strong>Evidencia:</strong>
-                                <div class="mt-2">
-                                    <% if (report.url_evidencia.match(/\.(jpg|jpeg|png|gif|webp)$/i)) { %>
-                                        <img src="<%= report.url_evidencia %>" alt="Evidencia" class="img-fluid border rounded">
-                                    <% } else { %>
-                                        <a href="<%= report.url_evidencia %>" target="_blank" class="btn btn-sm btn-outline-primary">Ver evidencia</a>
-                                    <% } %>
-                                </div>
+                    <div class="report-description"><strong>Descripción:</strong>
+                        <div class="mt-2"><%= report.descripcion %></div>
+                    </div>
+
+                    <% if (report.url_evidencia) { %>
+                        <div class="mt-3">
+                            <strong>Evidencia:</strong>
+                            <div class="mt-2">
+                                <% if (report.url_evidencia.match(/\.(jpg|jpeg|png|gif|webp)$/i)) { %>
+                                    <img src="<%= report.url_evidencia %>" alt="Evidencia" class="img-fluid border rounded">
+                                <% } else { %>
+                                    <a href="<%= report.url_evidencia %>" target="_blank" class="btn btn-sm btn-outline-primary">Ver evidencia</a>
+                                <% } %>
                             </div>
-                        <% } %>
-
-                        <div class="mb-3">
-                            <label class="form-label">Estado</label>
-                            <select id="pageEstado" class="form-select w-50">
-                                <option value="abierto" <%= report.estado === 'abierto' ? 'selected' : '' %>>Abierto</option>
-                                <option value="en_progreso" <%= report.estado === 'en_progreso' ? 'selected' : '' %>>En progreso</option>
-                                <option value="cerrado" <%= report.estado === 'cerrado' ? 'selected' : '' %>>Cerrado</option>
-                            </select>
                         </div>
+                    <% } %>
 
-                        <div>
-                            <button id="savePageChanges" type="button" class="btn btn-primary">Guardar cambios</button>
-                        </div>
+                    <div class="mt-3">
+                        <label class="form-label">Estado</label>
+                        <select id="pageEstado" class="form-select w-50">
+                            <option value="abierto" <%= report.estado === 'abierto' ? 'selected' : '' %>>Abierto</option>
+                            <option value="en_progreso" <%= report.estado === 'en_progreso' ? 'selected' : '' %>>En progreso</option>
+                            <option value="cerrado" <%= report.estado === 'cerrado' ? 'selected' : '' %>>Cerrado</option>
+                        </select>
+                    </div>
+
+                    <div class="report-actions">
+                        <button id="savePageChanges" type="button" class="btn btn-primary">Guardar cambios</button>
+                        <a href="/support" class="btn btn-outline-secondary">Volver a lista</a>
                     </div>
                 </div>
             </div>

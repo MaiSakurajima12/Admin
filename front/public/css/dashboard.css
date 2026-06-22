@@ -759,8 +759,44 @@ body {
     }
 }
 
-/* Fix: ensure main content and class sections take full width on small screens
-   The original rule used a calc(...) max-width which can produce a very narrow
+
+
+
+.kpi-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(15,23,42,0.06);
+    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
+}
+.kpi-card .kpi-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 700;
+}
+.kpi-card h4 { margin: 0; font-size: 1.25rem; }
+.kpi-card p { margin: 0; font-size: 0.85rem; color: var(--dashboard-muted); }
+
+/* Support detail visual tweaks */
+.report-detail-card { border-radius: 18px; padding: 20px; background: var(--panel-bg); border: 1px solid var(--dashboard-border); box-shadow: var(--dashboard-shadow); }
+.report-meta { display:flex; gap:16px; align-items:flex-start; }
+.report-avatar { width:78px; height:78px; border-radius:12px; background:var(--avatar-bg); display:grid; place-items:center; font-weight:700; color:#fff; font-size:1.1rem; }
+.report-meta .meta-list { display:flex; flex-direction:column; gap:8px; }
+.report-meta .meta-item { color:var(--dashboard-muted); font-size:0.95rem; }
+.report-actions { display:flex; gap:10px; align-items:center; margin-top:12px; }
+.report-description { margin-top:14px; white-space:pre-wrap; color:var(--dashboard-text); }
+
+@media (max-width: 768px) {
+    .report-meta { flex-direction:column; align-items:flex-start; }
+    .kpi-card { flex-direction:row; }
+}
    content area on small viewports. Override it for smaller sizes so class
    sections (tareas/personas/rendimiento/etc.) behave like the dashboard. */
 @media (max-width: 991.98px) {
