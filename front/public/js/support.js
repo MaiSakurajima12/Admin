@@ -58,7 +58,102 @@ async function submitSupportReport(btn) {
         setButtonLoading(btnEl, false);
     }
 }
+function setButtonLoading(btn, loading, label) {
+    if (!btn) return;
+    if (loading) {
+        if (!btn.dataset.origHtml) btn.dataset.origHtml = btn.innerHTML;
+        btn.disabled = true;
+        const spinner = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>';
+        btn.innerHTML = `${spinner}${label || 'Procesando...'}`;
+    } else {
+        if (btn.dataset.origHtml) {
+            btn.innerHTML = btn.dataset.origHtml;
+            delete btn.dataset.origHtml;
+        }
+        btn.disabled = false;
+    }
+}
 
+async function openReportDetailModal(reportId) {
+    const modalEl = document.getElementById('reportDetailModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const detailTipo = document.getElementById('detailTipo');
+    const detailAutor = document.getElementById('detailAutor');
+    const detailFecha = document.getElementById('detailFecha');
+    const detailDescripcion = document.getElementById('detailDescripcion');
+    const detailEvidencia = document.getElementById('detailEvidencia');
+    const detailEstado = document.getElementById('detailEstado');
+    const saveButton = document.getElementById('saveReportChanges');
+
+    detailTipo.textContent = 'Cargando...';
+    detailAutor.textContent = '...';
+    detailFecha.textContent = '...';
+    detailDescripcion.textContent = '';
+    detailEvidencia.innerHTML = '';
+    detailEstado.value = 'abierto';
+    saveButton.dataset.reportId = reportId;
+
+    try {
+        const response = await fetch(`/api/support/${reportId}`, { credentials: 'include' });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'No se pudo cargar el reporte');
+        }
+
+        detailTipo.textContent = data.tipo_problema || 'Reporte de soporte';
+        detailAutor.textContent = data.reporter ? `${data.reporter.nombre || ''} ${data.reporter.apellido || ''}`.trim() : String(data.usuario_id || '—');
+        detailFecha.textContent = data.fecha_creacion ? new Date(data.fecha_creacion).toLocaleString() : '—';
+        detailDescripcion.textContent = data.descripcion || '';
+
+        if (data.url_evidencia) {
+            if (data.url_evidencia.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                detailEvidencia.innerHTML = `<img src="${data.url_evidencia}" alt="Evidencia" class="img-fluid rounded" />`;
+            } else {
+                detailEvidencia.innerHTML = `<a href="${data.url_evidencia}" target="_blank" class="btn btn-sm btn-outline-primary">Ver evidencia</a>`;
+            }
+        } else {
+            detailEvidencia.innerHTML = '';
+        }
+
+        detailEstado.value = data.estado || 'abierto';
+        saveButton.dataset.reportId = reportId;
+        modal.show();
+    } catch (err) {
+        console.error(err);
+        await showError('Error', err.message || 'No se pudo cargar el reporte');
+    }
+}
+
+async function submitReportDetailChanges(btn) {
+    const reportId = btn?.dataset?.reportId;
+    if (!reportId) return;
+
+    const estado = document.getElementById('detailEstado').value;
+    setButtonLoading(btn, true, 'Guardando...');
+
+    try {
+        const response = await fetch(`/api/support/${reportId}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'No se pudo actualizar el reporte');
+        }
+
+        await showSuccess('Reporte actualizado', 'El estado del reporte se actualizó correctamente.');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('reportDetailModal'));
+        modal?.hide();
+        if (typeof loadAllReports === 'function') loadAllReports();
+    } catch (err) {
+        console.error(err);
+        await showError('Error', err.message || 'No se pudo guardar el reporte');
+    } finally {
+        setButtonLoading(btn, false);
+    }
+}
 function transcribeSupportFile(button) {
     startVoiceDictation('supportDescription', button || document.querySelector('#supportModal button[onclick="transcribeSupportFile()"]'));
 }
