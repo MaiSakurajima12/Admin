@@ -1,3 +1,6 @@
+// temporary object URLs for local previews; revoked on modal close
+const tempObjectUrls = [];
+
 document.addEventListener('change', function(e) {
     if (e.target && e.target.id === 'submissionFile') {
         const fileName = e.target.files[0]?.name || "";
@@ -9,24 +12,34 @@ document.addEventListener('change', function(e) {
             previewContainer.innerHTML = '';
             const file = e.target.files[0];
             if (file) {
+                const url = URL.createObjectURL(file);
+                // keep track to revoke later when modal closes
+                tempObjectUrls.push(url);
                 if (file.type.startsWith('image/')) {
                     const img = document.createElement('img');
-                    const url = URL.createObjectURL(file);
                     img.src = url;
-                    img.className = 'img-fluid rounded';
+                    img.className = 'preview-img rounded';
                     img.style.maxHeight = '80vh';
-                    img.onload = () => {
-                        try { URL.revokeObjectURL(url); } catch (e) {}
-                    };
+                    img.style.cursor = 'pointer';
+                    img.addEventListener('click', () => openSubmissionPreview(url));
                     previewContainer.appendChild(img);
                 } else if (file.name && /\.pdf$/i.test(file.name)) {
                     const embed = document.createElement('iframe');
-                    const url = URL.createObjectURL(file);
                     embed.src = url;
-                    embed.style.width = '100%';
-                    embed.style.height = '70vh';
-                    embed.setAttribute('aria-label', 'Vista previa PDF');
-                    previewContainer.appendChild(embed);
+                    embed.className = 'preview-embed';
+                    embed.style.pointerEvents = 'none';
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'position-relative';
+                    wrapper.appendChild(embed);
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-sm btn-outline-primary position-absolute';
+                    btn.style.top = '8px';
+                    btn.style.right = '8px';
+                    btn.textContent = 'Abrir vista previa';
+                    btn.addEventListener('click', () => openSubmissionPreview(url));
+                    wrapper.appendChild(btn);
+                    previewContainer.appendChild(wrapper);
                 } else {
                     const p = document.createElement('div');
                     p.className = 'small text-muted';
@@ -120,13 +133,22 @@ function openSubmissionPreview(url) {
     const isImage = url.match(/\.(jpg|jpeg|png|gif|webp)$/i);
     const isPdf = url.match(/\.pdf$/i);
 
+    const revokeIfTemp = (u) => {
+        const idx = tempObjectUrls.indexOf(u);
+        if (idx !== -1) {
+            try { URL.revokeObjectURL(u); } catch (e) {}
+            tempObjectUrls.splice(idx, 1);
+        }
+    };
+
     if (isImage) {
         Swal.fire({
             imageUrl: url,
             imageAlt: 'Vista previa',
             showConfirmButton: true,
             confirmButtonText: 'Cerrar',
-            width: '90%'
+            width: '90%',
+            didClose: () => revokeIfTemp(url)
         });
         return;
     }
@@ -136,7 +158,8 @@ function openSubmissionPreview(url) {
             html: `<iframe src="${url}" style="width:100%;height:80vh;border:0;" aria-label="Vista previa PDF"></iframe>`,
             showConfirmButton: true,
             confirmButtonText: 'Cerrar',
-            width: '95%'
+            width: '95%',
+            didClose: () => revokeIfTemp(url)
         });
         return;
     }
@@ -183,13 +206,27 @@ function renderInlinePreview(containerId, url) {
         img.src = url;
         img.className = 'preview-img rounded';
         img.style.maxHeight = '80vh';
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', () => openSubmissionPreview(url));
         container.appendChild(img);
     } else if (url.match(/\.pdf$/i)) {
         const iframe = document.createElement('iframe');
         iframe.src = url;
         iframe.className = 'preview-embed';
         iframe.setAttribute('aria-label', 'Vista previa PDF');
-        container.appendChild(iframe);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'position-relative';
+        iframe.style.pointerEvents = 'none';
+        wrapper.appendChild(iframe);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm btn-outline-primary position-absolute';
+        btn.style.top = '8px';
+        btn.style.right = '8px';
+        btn.textContent = 'Abrir vista previa';
+        btn.addEventListener('click', () => openSubmissionPreview(url));
+        wrapper.appendChild(btn);
+        container.appendChild(wrapper);
     } else {
         const a = document.createElement('a');
         a.href = url;
