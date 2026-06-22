@@ -21,13 +21,12 @@ function populateText(id, value) {
     if (el) el.textContent = value;
 }
 
-async function loadAdminMetrics(range = '30d', faqId = '') {
+async function loadAdminMetrics(range = '30d') {
     document.getElementById('adminLoading').classList.remove('d-none');
     document.getElementById('adminContent').classList.add('d-none');
 
     try {
-        let url = `/api/admin/metrics?range=${encodeURIComponent(range)}`;
-        if (faqId) url += `&faqId=${encodeURIComponent(faqId)}`;
+        const url = `/api/admin/metrics?range=${encodeURIComponent(range)}`;
         const data = await fetchJson(url);
         renderMetrics(data);
         await loadAdminFaqs();
@@ -239,7 +238,6 @@ async function loadAdminFaqs() {
         const data = await fetchJson('/api/faqs/admin');
         adminFaqs = data || [];
         renderAdminFaqsTable(adminFaqs);
-        populateFaqSelector(adminFaqs);
     } catch (err) {
         console.error('Error cargando FAQs de administrador:', err);
         document.getElementById('adminFaqsTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">No se pudieron cargar las FAQs de admin.</td></tr>';
@@ -247,14 +245,7 @@ async function loadAdminFaqs() {
 }
 
 function populateFaqSelector(faqs) {
-    const sel = document.getElementById('faqSelect');
-    if (!sel) return;
-    // keep default option
-    sel.innerHTML = '<option value="">Última FAQ</option>' + (faqs || []).map(f => `<option value="${f.id}">${escapeHtml(f.pregunta || '').slice(0,60)}</option>`).join('');
-    sel.addEventListener('change', () => {
-        const range = document.getElementById('rangeSelect')?.value || '30d';
-        loadAdminMetrics(range, sel.value);
-    });
+    // removed: selector no longer used in UI
 }
 
 function renderAdminFaqsTable(items) {
