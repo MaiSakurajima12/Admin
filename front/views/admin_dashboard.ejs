@@ -17,10 +17,6 @@
                     <img src="/public/img/maxgradeplacapng.png" alt="Uxmal" class="navbar-logo">
                 </a>
                 <div class="navbar-actions d-flex align-items-center gap-3 ms-auto">
-                    <a href="/dashboard" class="nav-action text-dark small d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        <span>Volver al dashboard</span>
-                    </a>
                     <div class="dropdown">
                         <button class="btn avatar-circle" data-bs-toggle="dropdown" aria-expanded="false">
                             <% if (user && user.avatar_url) { %>
@@ -155,9 +151,13 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body">
+                            <div class="card-body position-relative">
                                 <h5 class="card-title">Soporte por estado</h5>
                                 <canvas id="supportStateChart" height="200"></canvas>
+                                <div id="supportStateChartOverlay" class="position-absolute top-50 start-50 translate-middle text-center text-muted d-none" style="pointer-events:none;">
+                                    <div class="fs-6 fw-semibold">No hay datos de soporte</div>
+                                    <div class="small">Aún no hay tickets registrados</div>
+                                </div>
                             </div>
                         </div>
                     </div>

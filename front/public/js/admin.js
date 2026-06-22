@@ -145,33 +145,40 @@ function renderSupportStateChart(stateData = {}, typeData = {}) {
     const ctx = document.getElementById('supportStateChart');
     if (!ctx) return;
 
-    const labels = Object.keys(stateData).length > 0 ? Object.keys(stateData) : ['abierto', 'en_progreso', 'cerrado'];
-    const values = labels.map((key) => stateData[key] || 0);
+    const labels = ['abierto', 'en_progreso', 'pendiente', 'cerrado'];
+    const values = labels.map((key) => Number(stateData[key] || 0));
 
     const data = {
         labels,
         datasets: [{
             data: values,
-            backgroundColor: ['#0d6efd', '#ffc107', '#198754'],
+            backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#6f42c1'],
+            borderColor: '#fff',
             borderWidth: 1
         }]
     };
 
-    if (supportStateChart) {
-        supportStateChart.data = data;
-        supportStateChart.update();
-    } else {
-        supportStateChart = new Chart(ctx, {
-            type: 'doughnut',
-            data,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
-        });
+    const overlay = document.getElementById('supportStateChartOverlay');
+    const hasData = values.some((value) => value > 0);
+    if (overlay) {
+        overlay.classList.toggle('d-none', hasData);
     }
+
+    if (supportStateChart) {
+        supportStateChart.destroy();
+        supportStateChart = null;
+    }
+
+    supportStateChart = new Chart(ctx, {
+        type: 'doughnut',
+        data,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
 }
 
 async function loadAdminFaqs() {
