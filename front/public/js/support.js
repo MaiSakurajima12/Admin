@@ -128,7 +128,9 @@ async function submitReportDetailChanges(btn) {
     const reportId = btn?.dataset?.reportId;
     if (!reportId) return;
 
-    const estado = document.getElementById('detailEstado').value;
+    const estadoInput = document.getElementById('detailEstado') || document.getElementById('pageEstado');
+    if (!estadoInput) return;
+    const estado = estadoInput.value;
     setButtonLoading(btn, true, 'Guardando...');
 
     try {
@@ -144,9 +146,12 @@ async function submitReportDetailChanges(btn) {
         }
 
         await showSuccess('Reporte actualizado', 'El estado del reporte se actualizó correctamente.');
-        const modal = bootstrap.Modal.getInstance(document.getElementById('reportDetailModal'));
-        modal?.hide();
-        if (typeof loadAllReports === 'function') loadAllReports();
+        const detailModalEl = document.getElementById('reportDetailModal');
+        if (detailModalEl) {
+            const modal = bootstrap.Modal.getInstance(detailModalEl);
+            modal?.hide();
+            if (typeof loadAllReports === 'function') loadAllReports();
+        }
     } catch (err) {
         console.error(err);
         await showError('Error', err.message || 'No se pudo guardar el reporte');

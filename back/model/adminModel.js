@@ -293,49 +293,40 @@ class AdminModel {
         };
     }
 
-    static async getFaqTicketCorrelation(range = '30d') {
-        const { start } = parseRange(range);
-
-        const [faqUsesResp, reportsResp] = await Promise.all([
-            supabase.from('faq_usos').select('faq_id, usuario_id, tipo_uso, fecha_creacion').gte('fecha_creacion', start.toISOString()),
-            supabase.from('reportes_soporte').select('id, usuario_id, fecha_creacion').gte('fecha_creacion', start.toISOString())
-        ]);
-
-        const uses = faqUsesResp.data || [];
-        const reports = reportsResp.data || [];
-        const reportsByUser = new Map();
-        (reports || []).forEach((report) => {
-            if (!report.usuario_id) return;
-            const list = reportsByUser.get(report.usuario_id) || [];
-            list.push({ id: report.id, fecha_creacion: report.fecha_creacion });
-            reportsByUser.set(report.usuario_id, list);
-        });
-
-        const beforeSet = new Set();
-        const afterSet = new Set();
-        const windowMs = 7 * 24 * 60 * 60 * 1000;
-
-        uses.forEach((use) => {
-            if (!use.usuario_id || !use.fecha_creacion) return;
-            const reference = new Date(use.fecha_creacion);
-            const userReports = reportsByUser.get(use.usuario_id) || [];
-            userReports.forEach((report) => {
-                if (!report.id || !report.fecha_creacion) return;
-                const reportDate = new Date(report.fecha_creacion);
-                const diff = reportDate - reference;
-                if (diff >= 0 && diff <= windowMs) {
-                    afterSet.add(report.id);
-                } else if (diff < 0 && diff >= -windowMs) {
-                    beforeSet.add(report.id);
+    static async getFaqTicketCorrelation(range = '30d', faqId = null) {
+        // Option 1: count ALL tickets before/after the FAQ creation date (global by date)
+        // We take the most recently created FAQ and compare report timestamps to it.
+        try {
+            let faqDate = null;
+            if (faqId) {
+                const faqResp = await supabase.from('faqs').select('id, fecha_creacion').eq('id', faqId).limit(1).single();
+                if (faqResp.error || !faqResp.data) {
+                    return { ticketsBeforeFaq: 0, ticketsAfterFaq: 0, faqCreationDate: null };
                 }
-            });
-        });
+                faqDate = faqResp.data.fecha_creacion;
+            } else {
+                const faqResp = await supabase.from('faqs').select('id, fecha_creacion').order('fecha_creacion', { ascending: false }).limit(1);
+                if (faqResp.error || !faqResp.data || faqResp.data.length === 0) {
+                    return { ticketsBeforeFaq: 0, ticketsAfterFaq: 0, faqCreationDate: null };
+                }
+                faqDate = faqResp.data[0].fecha_creacion;
+            }
 
-        return {
-            ticketsBeforeFaq: beforeSet.size,
-            ticketsAfterFaq: afterSet.size,
-            windowDays: 7
-        };
+            const beforeResp = await supabase.from('reportes_soporte').select('id', { count: 'exact', head: true }).lt('fecha_creacion', faqDate);
+            const afterResp = await supabase.from('reportes_soporte').select('id', { count: 'exact', head: true }).gte('fecha_creacion', faqDate);
+
+            const beforeCount = beforeResp.error ? 0 : (beforeResp.count || 0);
+            const afterCount = afterResp.error ? 0 : (afterResp.count || 0);
+
+            return {
+                ticketsBeforeFaq: beforeCount,
+                ticketsAfterFaq: afterCount,
+                faqCreationDate: faqDate
+            };
+        } catch (err) {
+            console.error('Error computing FAQ ticket correlation (global):', err);
+            return { ticketsBeforeFaq: 0, ticketsAfterFaq: 0, faqCreationDate: null };
+        }
     }
 
     static async getDashboardData(range = '30d') {

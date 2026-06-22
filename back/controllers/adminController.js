@@ -14,6 +14,16 @@ exports.getMetrics = async (req, res) => {
     try {
         const range = req.query.range || '30d';
         const data = await AdminModel.getDashboardData(range);
+        // If a specific faqId is provided, compute the correlation for that FAQ and override
+        const faqId = req.query.faqId;
+        if (faqId) {
+            try {
+                const specific = await AdminModel.getFaqTicketCorrelation(range, faqId);
+                data.faqTicketCorrelation = specific;
+            } catch (e) {
+                console.warn('Could not compute faqTicketCorrelation for faqId', faqId, e.message || e);
+            }
+        }
         res.json(data);
     } catch (err) {
         console.error('Error obteniendo métricas de admin:', err);

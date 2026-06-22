@@ -73,7 +73,7 @@
                         </div>
 
                         <div>
-                            <button id="savePageChanges" class="btn btn-primary">Guardar cambios</button>
+                            <button id="savePageChanges" type="button" class="btn btn-primary">Guardar cambios</button>
                         </div>
                     </div>
                 </div>
@@ -82,47 +82,13 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/public/js/swal-utils.js"></script>
+    <script src="/public/js/support.js"></script>
     <script>
-        function setButtonLoading(btn, loading, label) {
-            if (!btn) return;
-            if (loading) {
-                if (!btn.dataset.origHtml) btn.dataset.origHtml = btn.innerHTML;
-                btn.disabled = true;
-                const spinner = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>';
-                btn.innerHTML = `${spinner}${label || 'Procesando...'}`;
-            } else {
-                if (btn.dataset.origHtml) {
-                    btn.innerHTML = btn.dataset.origHtml;
-                    delete btn.dataset.origHtml;
-                }
-                btn.disabled = false;
-            }
-        }
-
         const saveButton = document.getElementById('savePageChanges');
-        saveButton.addEventListener('click', async () => {
-            const id = <%= report.id %>;
-            const estado = document.getElementById('pageEstado').value;
-            try {
-                setButtonLoading(saveButton, true, 'Guardando...');
-                const res = await fetch(`/api/support/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ estado })
-                });
-                if (!res.ok) {
-                    const j = await res.json().catch(() => ({}));
-                    throw new Error(j.error || 'No se pudo guardar');
-                }
-                alert('Cambios guardados');
-                window.location.href = '/support';
-            } catch (err) {
-                alert('Error: ' + (err.message || err));
-            } finally {
-                setButtonLoading(saveButton, false);
-            }
-        });
+        saveButton.setAttribute('data-report-id', '<%= report.id %>');
+        saveButton.addEventListener('click', () => submitReportDetailChanges(saveButton));
     </script>
 </body>
 </html>
