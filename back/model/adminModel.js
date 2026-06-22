@@ -197,7 +197,7 @@ class AdminModel {
     static async getSupportMetrics() {
         const reportsResp = await supabase
             .from('reportes_soporte')
-            .select('id, estado, tipo_problema, fecha_creacion, fecha_resolucion, updated_at, asignado_a');
+            .select('id, estado, tipo_problema, fecha_creacion, updated_at, asignado_a, usuario_id');
 
         if (reportsResp.error) {
             console.error('Error fetching support reports for metrics:', reportsResp.error);
