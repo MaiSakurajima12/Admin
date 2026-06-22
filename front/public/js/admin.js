@@ -259,6 +259,13 @@ function openFaqModal(id = null) {
 }
 
 async function submitFaqForm(btn) {
+    if (!btn) {
+        btn = document.querySelector('#faqFormModal .modal-footer .btn-primary');
+    }
+    if (btn && btn.disabled) {
+        return;
+    }
+
     const faqId = document.getElementById('faqId').value;
     const question = document.getElementById('faqQuestion').value.trim();
     const answer = document.getElementById('faqAnswer').value.trim();
@@ -272,7 +279,8 @@ async function submitFaqForm(btn) {
         return;
     }
 
-    setButtonLoading(btn, true, faqId ? 'Guardando...' : 'Creando...');
+    if (btn) btn.dataset.loadingLabel = faqId ? 'Guardando...' : 'Creando...';
+    setButtonLoading(btn, true);
     errorBox.classList.add('d-none');
 
     try {
@@ -345,6 +353,22 @@ function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+function setButtonLoading(btn, loading, label) {
+    if (!btn) return;
+    if (loading) {
+        if (!btn.dataset.origHtml) btn.dataset.origHtml = btn.innerHTML;
+        btn.disabled = true;
+        const spinner = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>';
+        btn.innerHTML = `${spinner}${label || btn.dataset.loadingLabel || 'Procesando...'}`;
+    } else {
+        if (btn.dataset.origHtml) {
+            btn.innerHTML = btn.dataset.origHtml;
+            delete btn.dataset.origHtml;
+        }
+        btn.disabled = false;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
