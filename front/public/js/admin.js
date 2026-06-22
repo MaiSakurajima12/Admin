@@ -144,29 +144,39 @@ function renderSupportStateChart(stateData = {}, typeData = {}) {
     const ctx = document.getElementById('supportStateChart');
     if (!ctx) return;
 
-    const labels = ['abierto', 'en_progreso', 'pendiente', 'cerrado'];
+    const labels = Object.keys(stateData);
     const values = labels.map((key) => Number(stateData[key] || 0));
-
-    const data = {
-        labels,
-        datasets: [{
-            data: values,
-            backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#6f42c1'],
-            borderColor: '#fff',
-            borderWidth: 1
-        }]
-    };
-
-    const overlay = document.getElementById('supportStateChartOverlay');
     const hasData = values.some((value) => value > 0);
-    if (overlay) {
-        overlay.classList.toggle('d-none', hasData);
-    }
+    const overlay = document.getElementById('supportStateChartOverlay');
 
     if (supportStateChart) {
         supportStateChart.destroy();
         supportStateChart = null;
     }
+
+    if (!labels.length || !hasData) {
+        if (overlay) {
+            overlay.classList.remove('d-none');
+        }
+        return;
+    }
+
+    if (overlay) {
+        overlay.classList.add('d-none');
+    }
+
+    const colors = ['#0d6efd', '#ffc107', '#198754', '#6f42c1', '#fd7e14', '#6c757d'];
+    const backgroundColor = labels.map((_, index) => colors[index % colors.length]);
+
+    const data = {
+        labels,
+        datasets: [{
+            data: values,
+            backgroundColor,
+            borderColor: '#fff',
+            borderWidth: 1
+        }]
+    };
 
     supportStateChart = new Chart(ctx, {
         type: 'doughnut',

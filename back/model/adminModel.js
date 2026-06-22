@@ -199,6 +199,11 @@ class AdminModel {
             .from('reportes_soporte')
             .select('id, estado, tipo_problema, fecha_creacion, fecha_resolucion, updated_at, asignado_a');
 
+        if (reportsResp.error) {
+            console.error('Error fetching support reports for metrics:', reportsResp.error);
+            throw reportsResp.error;
+        }
+
         const rows = reportsResp.data || [];
         const totals = {
             totalReports: rows.length,
