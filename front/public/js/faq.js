@@ -31,11 +31,11 @@ function renderFaqList(faqs) {
     faqList.innerHTML = faqs.map((faq, index) => `
         <div class="accordion-item">
             <h2 class="accordion-header" id="faqHeading${index}">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse${index}" aria-expanded="false" aria-controls="faqCollapse${index}" onclick="useFaq('${faq.id}', 'expand')">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse${index}" aria-expanded="false" aria-controls="faqCollapse${index}">
                     ${escapeHtml(faq.pregunta)}
                 </button>
             </h2>
-            <div id="faqCollapse${index}" class="accordion-collapse collapse" aria-labelledby="faqHeading${index}" data-bs-parent="#faqList">
+            <div id="faqCollapse${index}" class="accordion-collapse collapse" aria-labelledby="faqHeading${index}" data-bs-parent="#faqList" data-faq-id="${faq.id}">
                 <div class="accordion-body">
                     <p>${escapeHtml(faq.respuesta)}</p>
                     <button type="button" class="btn btn-sm btn-outline-primary" onclick="markFaqResolved('${faq.id}')">Esto resolvió mi duda</button>
@@ -43,6 +43,23 @@ function renderFaqList(faqs) {
             </div>
         </div>
     `).join('');
+
+    attachFaqOpenHandlers();
+}
+
+function attachFaqOpenHandlers() {
+    const faqList = document.getElementById('faqList');
+    if (!faqList) return;
+
+    const collapseItems = faqList.querySelectorAll('.accordion-collapse');
+    collapseItems.forEach((collapse) => {
+        const faqId = collapse.dataset.faqId;
+        if (!faqId) return;
+
+        collapse.addEventListener('shown.bs.collapse', () => {
+            useFaq(faqId, 'expand');
+        }, { once: true });
+    });
 }
 
 function filterFaqs() {
