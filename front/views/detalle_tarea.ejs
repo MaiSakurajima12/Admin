@@ -46,12 +46,22 @@
                 <% if (tarea.archivo_guia_url) { %>
                     <div class="mt-4">
                         <h6 class="fw-bold">Materiales de apoyo</h6>
-                        <a href="<%= tarea.archivo_guia_url %>" target="_blank" class="card d-inline-block text-decoration-none border shadow-sm p-3" style="max-width: 300px;">
-                            <div class="d-flex align-items-center">
-                                <i class="fa-solid fa-file-pdf fa-2x text-danger me-3"></i>
-                                <span class="text-dark text-truncate">Ver material adjunto</span>
+                        <div class="card d-inline-block border shadow-sm p-3" style="max-width: 100%;">
+                            <div>
+                                <% if (tarea.archivo_guia_url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) { %>
+                                    <img src="<%= tarea.archivo_guia_url %>" class="img-fluid rounded" style="max-height:360px;" />
+                                <% } else if (tarea.archivo_guia_url.match(/\.pdf$/i)) { %>
+                                    <iframe src="<%= tarea.archivo_guia_url %>" style="width:100%; height:420px; border:0;" aria-label="Vista previa PDF"></iframe>
+                                <% } else { %>
+                                    <a href="<%= tarea.archivo_guia_url %>" target="_blank" class="d-inline-block text-decoration-none">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-file fa-2x text-secondary me-3"></i>
+                                            <span class="text-dark text-truncate">Descargar material adjunto</span>
+                                        </div>
+                                    </a>
+                                <% } %>
                             </div>
-                        </a>
+                        </div>
                     </div>
                 <% } %>
             </div>
@@ -96,7 +106,7 @@
                                         <small class="text-muted">Entregado: <%= new Date(entrega.fecha_envio || entrega.created_at).toLocaleDateString() %></small>
                                     </div>
                                     <% if (entrega.archivo_entrega_url) { %>
-                                        <a href="<%= entrega.archivo_entrega_url %>" target="_blank" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="openSubmissionPreview('<%= entrega.archivo_entrega_url %>')">Ver</button>
                                     <% } else { %>
                                         <span class="text-muted small">Sin archivo</span>
                                     <% } %>
@@ -118,6 +128,7 @@
                                 </div>
                             <% } %>
                             <% if (entrega.archivo_entrega_url) { %>
+                                <div id="mySubmissionPreview" class="mb-2 text-center"></div>
                                 <a href="<%= entrega.archivo_entrega_url %>" target="_blank" class="btn btn-outline-secondary w-100 mb-2">Ver mi entrega</a>
                                 <% 
                                     let filenameFromUrl = 'archivo';
@@ -159,6 +170,7 @@
                                         <input type="file" id="submissionFile" name="archivo_entrega" hidden accept="*/*">
                                     </label>
                                     <div id="fileNameDisplay" class="small text-muted mt-2 text-center"></div>
+                                    <div id="submissionPreview" class="mt-2 text-center"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="comentarioAlumno" class="form-label">Comentario privado (opcional)</label>
@@ -192,6 +204,12 @@
             if (entregaId && typeof loadStudentRubricGrades === 'function') {
                 loadStudentRubricGrades(entregaId);
             }
+            // render inline preview for student's submission (if any)
+            <% if (entrega && entrega.archivo_entrega_url) { %>
+                if (typeof renderInlinePreview === 'function') {
+                    renderInlinePreview('mySubmissionPreview', '<%= entrega.archivo_entrega_url %>');
+                }
+            <% } %>
         }
 
         if (document.readyState === 'loading') {

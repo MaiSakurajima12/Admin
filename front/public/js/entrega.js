@@ -2,6 +2,33 @@ document.addEventListener('change', function(e) {
     if (e.target && e.target.id === 'submissionFile') {
         const fileName = e.target.files[0]?.name || "";
         document.getElementById('fileNameDisplay').textContent = fileName;
+        // render a preview for images / pdfs
+        const previewContainer = document.getElementById('submissionPreview');
+        if (previewContainer) {
+            previewContainer.innerHTML = '';
+            const file = e.target.files[0];
+            if (file) {
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.className = 'img-fluid rounded';
+                    img.style.maxHeight = '320px';
+                    previewContainer.appendChild(img);
+                } else if (file.name && /\.pdf$/i.test(file.name)) {
+                    const embed = document.createElement('iframe');
+                    embed.src = URL.createObjectURL(file);
+                    embed.style.width = '100%';
+                    embed.style.height = '420px';
+                    embed.setAttribute('aria-label', 'Vista previa PDF');
+                    previewContainer.appendChild(embed);
+                } else {
+                    const p = document.createElement('div');
+                    p.className = 'small text-muted';
+                    p.textContent = file.name;
+                    previewContainer.appendChild(p);
+                }
+            }
+        }
     }
 });
 
@@ -81,6 +108,37 @@ function refreshSubmissionView() {
     }
 }
 
+// Helper to open a preview for existing submission URLs (images / pdfs)
+function openSubmissionPreview(url) {
+    if (!url) return;
+    const isImage = url.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+    const isPdf = url.match(/\.pdf$/i);
+
+    if (isImage) {
+        Swal.fire({
+            imageUrl: url,
+            imageAlt: 'Vista previa',
+            showConfirmButton: true,
+            confirmButtonText: 'Cerrar',
+            width: '80%'
+        });
+        return;
+    }
+
+    if (isPdf) {
+        Swal.fire({
+            html: `<iframe src="${url}" style="width:100%;height:70vh;border:0;" aria-label="Vista previa PDF"></iframe>`,
+            showConfirmButton: true,
+            confirmButtonText: 'Cerrar',
+            width: '90%'
+        });
+        return;
+    }
+
+    // default: open in new tab
+    window.open(url, '_blank');
+}
+
 async function cancelSubmission(entregaId) {
     showConfirm(
         '¿Anular entrega?',
@@ -108,4 +166,31 @@ async function cancelSubmission(entregaId) {
             showError('Error de conexión', 'No se pudo conectar con el servidor');
         }
     });
+}
+
+function renderInlinePreview(containerId, url) {
+    const container = document.getElementById(containerId);
+    if (!container || !url) return;
+    container.innerHTML = '';
+    if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'img-fluid rounded';
+        img.style.maxHeight = '320px';
+        container.appendChild(img);
+    } else if (url.match(/\.pdf$/i)) {
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.style.width = '100%';
+        iframe.style.height = '420px';
+        iframe.setAttribute('aria-label', 'Vista previa PDF');
+        container.appendChild(iframe);
+    } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.className = 'btn btn-sm btn-outline-primary';
+        a.textContent = 'Descargar archivo';
+        container.appendChild(a);
+    }
 }

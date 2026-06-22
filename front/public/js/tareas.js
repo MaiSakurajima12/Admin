@@ -112,14 +112,21 @@ async function loadUnitsForClass(claseId) {
 
         if (!selectUnit) return;
 
-        selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
-
-        units.forEach(unit => {
-            const option = document.createElement('option');
-            option.value = unit.id;
-            option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
-            selectUnit.appendChild(option);
-        });
+        // Only replace options when the server returns at least one unit.
+        // This prevents the select from being cleared unexpectedly when
+        // the backend returns an empty array in certain flows.
+        if (Array.isArray(units) && units.length > 0) {
+            selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
+            units.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit.id;
+                option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
+                selectUnit.appendChild(option);
+            });
+        } else {
+            // keep existing options (do not clear) and log for debugging
+            console.warn('loadUnitsForClass: no units returned, preserving existing options');
+        }
     } catch (error) {
         console.error('Error al cargar unidades:', error);
     }
@@ -277,13 +284,17 @@ async function loadUnitsForEditModal(claseId) {
 
         if (!selectUnit) return;
 
-        selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
-        units.forEach(unit => {
-            const option = document.createElement('option');
-            option.value = unit.id;
-            option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
-            selectUnit.appendChild(option);
-        });
+        if (Array.isArray(units) && units.length > 0) {
+            selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
+            units.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit.id;
+                option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
+                selectUnit.appendChild(option);
+            });
+        } else {
+            console.warn('loadUnitsForEditModal: no units returned, preserving existing options');
+        }
     } catch (error) {
         console.error('Error al cargar unidades:', error);
     }
