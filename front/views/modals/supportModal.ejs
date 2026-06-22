@@ -1,0 +1,41 @@
+<div class="modal fade" id="supportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0" style="background-color: #4c63ff;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-headset text-white fs-5"></i>
+                    <h5 class="modal-title text-white mb-0">Soporte técnico</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <div class="mb-3">
+                    <label for="supportProblemType" class="form-label fw-bold"><i class="fa-solid fa-tag me-2" style="color: #4c63ff;"></i>Tipo de problema</label>
+                    <select id="supportProblemType" class="form-select" required>
+                        <option value="">Selecciona un tipo</option>
+                        <option value="Problemas de cuenta y acceso">Problemas de cuenta y acceso</option>
+                        <option value="Falla en la carga de datos/archivos">Falla en la carga de datos/archivos</option>
+                        <option value="Errores de interfaz">Errores de interfaz</option>
+                        <option value="Sugerencia de mejora/comentarios">Sugerencia de mejora/comentarios</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="supportDescription" class="form-label fw-bold"><i class="fa-solid fa-pen-to-square me-2" style="color: #4c63ff;"></i>Descripción del problema</label>
+                    <textarea id="supportDescription" class="form-control" rows="4" maxlength="1000" placeholder="Describe lo que sucedió..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="supportEvidenceFile" class="form-label fw-bold"><i class="fa-solid fa-paperclip me-2" style="color: #4c63ff;"></i>Evidencia (imagen o audio opcional)</label>
+                    <input type="file" id="supportEvidenceFile" class="form-control" accept="image/*,audio/*">
+                    <div class="mt-2 d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="startVoiceDictation('supportDescription', this)"><i class="fa-solid fa-microphone me-2"></i>Dictar descripción</button>
+                    </div>
+                </div>
+                <div id="supportError" class="alert alert-danger d-none" role="alert"></div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="submitSupportReport(this)"><i class="fa-solid fa-paper-plane me-2"></i>Enviar reporte</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.1",
+    "body-parser": "^2.2.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6", 
+    "dotenv": "^17.3.1",
+    "ejs": "^4.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.3",
+    "bcryptjs": "^2.4.3",
+    "multer": "^2.1.1",
+    "path": "^0.12.7",
+    "sweetalert2": "^11.26.24"
+  }
+}

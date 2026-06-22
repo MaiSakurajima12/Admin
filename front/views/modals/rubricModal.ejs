@@ -1,0 +1,64 @@
+<div class="modal fade" id="rubricModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0" style="background-color: #7c3aed;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-star text-white fs-5"></i>
+                    <h5 class="modal-title text-white mb-0">Crear Rúbrica Estándar</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa-solid fa-list me-2" style="color: #4c63ff;"></i>Criterio</label>
+                    <input type="text" class="form-control" id="newRubricCriterio" placeholder="ej: Claridad de escritura">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa-solid fa-align-left me-2" style="color: #4c63ff;"></i>Descripción (opcional)</label>
+                    <textarea class="form-control" id="newRubricDescripcion" rows="2" placeholder="Describe qué se evalúa en este criterio..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa-solid fa-hashtag me-2" style="color: #4c63ff;"></i>Puntos máximos</label>
+                    <input type="number" class="form-control" id="newRubricPuntos" min="1" max="1000" placeholder="10">
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createNewRubric(this)"><i class="fa-solid fa-check me-2"></i>Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editRubricModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0" style="background-color: #16b896;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-pen text-white fs-5"></i>
+                    <h5 class="modal-title text-white mb-0">Editar Rúbrica</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <input type="hidden" id="editRubricId">
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa-solid fa-list me-2" style="color: #4c63ff;"></i>Criterio</label>
+                    <input type="text" class="form-control" id="editRubricCriterio">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa-solid fa-align-left me-2" style="color: #4c63ff;"></i>Descripción</label>
+                    <textarea class="form-control" id="editRubricDescripcion" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa-solid fa-hashtag me-2" style="color: #4c63ff;"></i>Puntos máximos</label>
+                    <input type="number" class="form-control" id="editRubricPuntos" min="1" max="1000">
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="saveRubricChanges()"><i class="fa-solid fa-save me-2"></i>Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>

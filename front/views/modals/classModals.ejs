@@ -1,0 +1,60 @@
+<div class="modal fade" id="joinModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0" style="background-color: #4c63ff;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-door-open text-white fs-5"></i>
+                    <h5 class="modal-title text-white mb-0">Unirse a una clase</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <p class="text-muted mb-4"><i class="fa-solid fa-info-circle me-2"></i>Pídele el código de la clase a tu profesor e introdúcelo aquí.</p>
+                <div id="classCodeContainer" class="d-flex gap-2 justify-content-center">
+                    <input type="text" maxlength="1" class="code-input form-control form-control-lg text-center fw-bold" inputmode="text" pattern="[A-Za-z0-9]" aria-label="Código 1">
+                    <input type="text" maxlength="1" class="code-input form-control form-control-lg text-center fw-bold" inputmode="text" pattern="[A-Za-z0-9]" aria-label="Código 2">
+                    <input type="text" maxlength="1" class="code-input form-control form-control-lg text-center fw-bold" inputmode="text" pattern="[A-Za-z0-9]" aria-label="Código 3">
+                    <input type="text" maxlength="1" class="code-input form-control form-control-lg text-center fw-bold" inputmode="text" pattern="[A-Za-z0-9]" aria-label="Código 4">
+                    <input type="text" maxlength="1" class="code-input form-control form-control-lg text-center fw-bold" inputmode="text" pattern="[A-Za-z0-9]" aria-label="Código 5">
+                    <input type="text" maxlength="1" class="code-input form-control form-control-lg text-center fw-bold" inputmode="text" pattern="[A-Za-z0-9]" aria-label="Código 6">
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light rounded-bottom pt-3">
+                <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary rounded-3 px-4" onclick="joinClass(this)"><i class="fa-solid fa-check me-2"></i>Unirse</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0" style="background-color: #4c63ff;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-white fs-5"></i>
+                    <h5 class="modal-title text-white mb-0">Crear una clase</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-dark"><i class="fa-solid fa-book me-2" style="color: #4c63ff;"></i>Nombre de la clase</label>
+                    <input type="text" id="className" class="form-control form-control-lg" placeholder="Ej: Matemáticas 101" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-dark"><i class="fa-solid fa-layer-group me-2" style="color: #4c63ff;"></i>Sección</label>
+                    <input type="text" id="classSection" class="form-control form-control-lg" placeholder="Ej: A, B, C...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-dark"><i class="fa-solid fa-graduation-cap me-2" style="color: #4c63ff;"></i>Materia</label>
+                    <input type="text" id="classSubject" class="form-control form-control-lg" placeholder="Ej: Matemáticas">
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createClass(this)"><i class="fa-solid fa-check me-2"></i>Crear</button>
+            </div>
+        </div>
+    </div>
+</div>

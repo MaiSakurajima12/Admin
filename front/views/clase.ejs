@@ -1,0 +1,724 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= clase.nombre_clase %> | MaxGrade</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/101326ea39.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/dashboard.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+        <div class="container-fluid px-0">
+            <div class="navbar-inner d-flex align-items-center position-relative w-100">
+                <a class="navbar-brand d-flex align-items-center me-2" href="/">
+                    <img src="/public/img/maxgradeplacapng.png" alt="MaxGrade" class="navbar-logo">
+                </a>
+                <button class="btn btn-light border-0 text-dark" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+                <div class="navbar-actions d-flex align-items-center gap-3 ms-auto">
+                    <a href="#" class="nav-action text-dark small d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#joinModal">
+                        <i class="fa-solid fa-link"></i>
+                        <span>Unirse a una clase</span>
+                    </a>
+                    <a href="#" class="nav-action text-dark small d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createModal">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Crea una clase</span>
+                    </a>
+                    <a href="#" class="nav-action text-dark small d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#supportModal">
+                        <i class="fa-solid fa-headset"></i>
+                        <span>Soporte</span>
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn avatar-circle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <% if (user && user.avatar_url) { %>
+                                <img src="<%= user.avatar_url %>" alt="Avatar" class="avatar-image">
+                            <% } else { %>
+                                <span class="avatar-fallback"><%= user && user.nombre ? user.nombre.charAt(0).toUpperCase() : '?' %></span>
+                            <% } %>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/perfil"><i class="fa-solid fa-user me-2"></i>Perfil</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div style="height:8px;"></div>
+        </div>
+        <ul class="sidebar-menu">
+            <li>Realiza click en el boton deseado para ir a donde desees:</li>
+            <li><a href="/dashboard" class="sidebar-link active"><i class="fa-solid fa-graduation-cap me-3"></i>Mis clases</a></li>
+            <li><a href="/dashboard?section=calendar" class="sidebar-link"><i class="fa-solid fa-clipboard-list me-3"></i>Tareas</a></li>
+            <li><a href="/dashboard?section=submissions" class="sidebar-link"><i class="fa-solid fa-clipboard-check me-3"></i>Entregadas</a></li>
+            <li><a href="/mis-reportes" class="sidebar-link"><i class="fa-solid fa-headset me-3"></i>Mis reportes</a></li>
+            <li><a href="/terminos" class="sidebar-link"><i class="fa-solid fa-file-contract me-3"></i>Términos y condiciones</a></li>
+            <li><a href="/privacidad" class="sidebar-link"><i class="fa-solid fa-user-shield me-3"></i>Aviso de privacidad</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="mt-3">
+                <a href="/logout" class="btn btn-outline-danger btn-sm w-100">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar sesión
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content container py-4">
+        <% if (clase.portada_url) { %>
+            <style>
+                .page-header-card.custom-bg {
+                    background-image: url('<%= clase.portada_url %>');
+                    background-size: cover;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                }
+            </style>
+        <% } %>
+        <div class="page-header-card position-relative overflow-hidden mb-4<% if (clase.portada_url) { %> custom-bg<% } %>" style="background-color: #1a73e8;">
+            <div class="position-relative p-4 p-lg-5 text-white">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+                    <div>
+                        <p class="text-uppercase small fw-semibold opacity-85 mb-2">Clase</p>
+                        <h1 class="display-6 fw-bold mb-2"><%= clase.nombre_clase %></h1>
+                        <p class="mb-3 opacity-85 fs-5"><%= clase.seccion %></p>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <span class="badge bg-white text-dark rounded-pill py-2 px-3">Código: <strong><%= clase.codigo_acceso || '---' %></strong></span>
+                            <% if (clase.profesor) { %>
+                                <span class="badge bg-white text-dark rounded-pill py-2 px-3">Profesor: <%= clase.profesor.nombre %> <%= clase.profesor.apellido || '' %></span>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-start align-items-lg-end gap-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+            <div class="btn-group" role="group" aria-label="Secciones de clase">
+                <button id="tabTasksBtn" type="button" class="btn btn-outline-secondary active" onclick="switchSection('tasks')">Tareas</button>
+                <button id="tabPersonasBtn" type="button" class="btn btn-outline-secondary" onclick="switchSection('personas')">Personas</button>
+                <% if (isProfesor) { %>
+                    <button id="tabRubricsBtn" type="button" class="btn btn-outline-secondary" onclick="switchSection('rubrics')">Rúbricas</button>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-4 align-items-center class-action-row">
+            <div class="d-flex flex-wrap gap-2 align-items-center class-action-group-start">
+                <% if (isProfesor) { %>
+                    <button class="btn btn-primary btn-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#createAssignmentModal">
+                        <i class="fa-solid fa-plus me-2"></i> Crear tarea
+                    </button>
+                    <button id="tabRendimientoBtn" class="btn btn-outline-secondary btn-sm rounded-pill px-4" onclick="switchSection('rendimiento')">
+                        <i class="fa-solid fa-chart-line me-2"></i> Rendimiento de Clase
+                    </button>
+                <% } %>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center class-action-group-end ms-auto">
+                <% if (isProfesor) { %>
+                    <button class="btn btn-outline-danger btn-sm rounded-pill px-4" onclick="deleteClass('<%= clase.id %>', '<%= clase.nombre_clase %>')">
+                        <i class="fa-solid fa-trash me-2"></i> Eliminar clase
+                    </button>
+                <% } %>
+                <button class="btn btn-outline-primary btn-sm rounded-pill px-4" type="button" data-bs-toggle="collapse" data-bs-target="#announcementForm">
+                    <i class="fa-solid fa-bullhorn me-2"></i> Crear anuncio
+                </button>
+            </div>
+        </div>
+        <div class="collapse mb-4" id="announcementForm">
+            <div class="card card-body bg-white shadow-sm rounded-4 border-0">
+                <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                    <i class="fa-solid fa-bullhorn fs-5" style="color: #4c63ff;"></i>
+                    <h6 class="fw-bold mb-0">Crear anuncio</h6>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa-solid fa-pen-to-square me-2" style="color: #4c63ff;"></i>Contenido</label>
+                    <textarea id="postContent" class="form-control" rows="4" maxlength="500" placeholder="Escribe tu anuncio aquí..." required></textarea>
+                    <small class="text-muted">Máximo 500 caracteres</small>
+                </div>
+                <div class="mb-3">
+                    <label for="postFile" class="form-label fw-bold"><i class="fa-solid fa-paperclip me-2" style="color: #4c63ff;"></i>Adjuntar archivo (opcional)</label>
+                    <input type="file" id="postFile" class="form-control" accept="image/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                    <div class="mt-2 d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="startVoiceDictation('postContent', this)"><i class="fa-solid fa-microphone me-2"></i>Dictar</button>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                    <button class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#announcementForm">Cancelar</button>
+                    <button class="btn btn-primary px-4" onclick="createPost('<%= clase.id %>', this)"><i class="fa-solid fa-check me-2"></i>Publicar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="sectionTasks">
+            <div id="tasksOverview">
+                <div class="row gx-4">
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm rounded-4 mb-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between mb-4 gap-3">
+                                    <div>
+                                        <h2 class="h5 fw-bold mb-1">Tareas</h2>
+                                        <p class="mb-0 text-muted">Haz clic sobre cualquier tarea para abrirla.</p>
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <% const tareaPosts = posts.filter(post => post.tipo === 'tarea'); %>
+                                        <% const unidadesMap = {}; (unidades || []).forEach(unit => { unidadesMap[unit.id] = unit; }); %>
+                                        <% const tareasPorUnidad = {}; const unidadOrder = []; (unidades || []).forEach(unit => { tareasPorUnidad[unit.id] = { unidad: unit, tareas: [] }; unidadOrder.push(unit.id); }); %>
+                                        <% const tareassSinUnidad = []; tareaPosts.forEach(post => { if (post.unidad_id && tareasPorUnidad[post.unidad_id]) { tareasPorUnidad[post.unidad_id].tareas.push(post); } else { tareassSinUnidad.push(post); } }); %>
+                                        <% if (!isProfesor) { %>
+                                            <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3"><%= tareaPosts.length %> pendientes</span>
+                                        <% } %>
+                                        <% if (isProfesor) { %>
+                                            <button class="btn btn-sm btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#createUnitModal">
+                                                <i class="fa-solid fa-folder-plus me-1"></i> Crear unidad
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <% if (tareaPosts.length === 0) { %>
+                                    <div class="text-center py-5">
+                                        <i class="fa-solid fa-clipboard-list fa-3x text-muted opacity-25 mb-3"></i>
+                                        <p class="text-muted mb-0">No hay tareas activas por el momento.</p>
+                                    </div>
+                                <% } else { %>
+                                    <% unidadOrder.forEach(unitId => { const grupo = tareasPorUnidad[unitId]; if (grupo.tareas.length > 0) { %>
+                                        <div class="mb-4">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="fa-solid fa-folder text-primary me-2" style="font-size: 1.5rem;"></i>
+                                                <div>
+                                                    <h5 class="mb-0 fw-bold">Unidad <%= grupo.unidad.numero_unidad %>: <%= grupo.unidad.nombre %></h5>
+                                                    <% if (grupo.unidad.descripcion) { %>
+                                                        <small class="text-muted"><%= grupo.unidad.descripcion %></small>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                            <div class="ps-4">
+                                                <% grupo.tareas.forEach(post => { %>
+                                                    <div class="task-button d-flex align-items-center justify-content-between text-decoration-none" onclick="openTaskDetail('<%= post.id %>', event)">
+                                                        <div>
+                                                            <div class="fw-bold text-dark mb-1"><%= post.titulo || 'Tarea sin título' %></div>
+                                                            <p class="mb-0 text-muted"><%= post.descripcion || 'Revisa los detalles de la tarea aquí.' %></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <% if (isProfesor || (user && post.creador_id === user.id)) { %>
+                                                                <button type="button" class="btn btn-sm btn-outline-warning rounded-pill" data-unit-id="<%= post.unidad_id || '' %>" onclick="event.stopPropagation(); editAssignment('<%= post.id %>', '<%= clase.id %>', this.dataset.unitId)">Asignar a unidad</button>
+                                                            <% } %>
+                                                            <% if (isProfesor || (user && post.creador_id === user.id)) { %>
+                                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" onclick="event.stopPropagation(); deleteAssignment('<%= post.id %>')">Eliminar</button>
+                                                            <% } %>
+                                                            <span class="btn btn-sm btn-primary rounded-pill">Ir</span>
+                                                        </div>
+                                                    </div>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                    <% } }); %>
+
+                                    <% if (tareassSinUnidad.length > 0) { %>
+                                        <div class="mb-4">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="fa-solid fa-inbox text-secondary me-2" style="font-size: 1.5rem;"></i>
+                                                <h5 class="mb-0 fw-bold">Sin asignar a una unidad</h5>
+                                            </div>
+                                            <div class="ps-4">
+                                                <% tareassSinUnidad.forEach(post => { %>
+                                                    <div class="task-button d-flex align-items-center justify-content-between text-decoration-none" onclick="openTaskDetail('<%= post.id %>', event)">
+                                                        <div>
+                                                            <div class="fw-bold text-dark mb-1"><%= post.titulo || 'Tarea sin título' %></div>
+                                                            <p class="mb-0 text-muted"><%= post.descripcion || 'Revisa los detalles de la tarea aquí.' %></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <% if (isProfesor || (user && post.creador_id === user.id)) { %>
+                                                                <button type="button" class="btn btn-sm btn-outline-warning rounded-pill" data-unit-id="<%= post.unidad_id || '' %>" onclick="event.stopPropagation(); editAssignment('<%= post.id %>', '<%= clase.id %>', this.dataset.unitId)">Asignar a unidad</button>
+                                                            <% } %>
+                                                            <% if (isProfesor || (user && post.creador_id === user.id)) { %>
+                                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" onclick="event.stopPropagation(); deleteAssignment('<%= post.id %>')">Eliminar</button>
+                                                            <% } %>
+                                                            <span class="btn btn-sm btn-primary rounded-pill">Ir</span>
+                                                        </div>
+                                                    </div>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4 mb-4">
+                            <div class="card-body">
+                                <h3 class="h6 fw-bold mb-3">Anuncios recientes</h3>
+                                <% var announcementPostsTasks = posts.filter(post => post.tipo !== 'tarea'); %>
+                                <% if (!announcementPostsTasks || announcementPostsTasks.length === 0) { %>
+                                    <div class="text-muted">No hay anuncios recientes.</div>
+                                <% } else { %>
+                                    <% announcementPostsTasks.forEach(post => { %>
+                                        <div class="card border border-1 rounded-4 mb-3">
+                                            <div class="card-body py-3 px-3">
+                                                <div class="d-flex align-items-start gap-3 mb-2">
+                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                                                        <i class="fa-solid fa-bullhorn"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold"><%= post.autor ? (post.autor.nombre + ' ' + (post.autor.apellido || '')) : 'MaxGrade' %></div>
+                                                        <small class="text-muted"><%= post.fecha_orden ? new Date(post.fecha_orden).toLocaleDateString() : '' %></small>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <div class="mb-1 fw-semibold"><%= post.titulo || 'Anuncio' %></div>
+                                                    <% if (isProfesor || (user && post.autor_id === user.id)) { %>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deletePost('<%= post.id %>')">Eliminar</button>
+                                                    <% } %>
+                                                </div>
+                                                <p class="small text-muted mb-0"><%= post.descripcion || post.contenido || '' %></p>
+                                                <% if (post.archivo_url) { %>
+                                                    <p class="small mb-0 mt-2"><a href="<%= post.archivo_url %>" target="_blank" class="link-primary">Ver archivo adjunto</a></p>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="taskDetailSection" class="d-none"></div>
+            <div id="taskReviewSection" class="d-none"></div>
+        </div>
+
+        <div id="sectionPersonas" class="d-none">
+            <div class="row gx-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-4 gap-3">
+                                <div>
+                                    <h2 class="h5 fw-bold mb-1">Personas</h2>
+                                    <p class="mb-0 text-muted">Profesores y estudiantes inscritos en esta clase.</p>
+                                </div>
+                                <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3"><%= (profesores.length || 0) + (alumnos.length || 0) %> inscritos</span>
+                            </div>
+
+                            <div class="mb-5">
+                                <div class="d-flex align-items-center border-bottom border-primary border-2 mb-3 pb-2">
+                                    <h3 class="text-primary mb-0">Profesores</h3>
+                                </div>
+                                <% if (profesores && profesores.length > 0) { %>
+                                    <div class="list-group list-group-flush">
+                                        <% profesores.forEach(p => { %>
+                                            <div class="list-group-item border-0 px-0 py-3 d-flex align-items-center gap-3">
+                                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <%= p.usuarios.nombre.charAt(0) %><%= p.usuarios.apellido.charAt(0) %>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold"><%= p.usuarios.nombre %> <%= p.usuarios.apellido %></div>
+                                                    <small class="text-muted">Profesor</small>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                <% } else { %>
+                                    <p class="text-muted">No hay profesores asignados.</p>
+                                <% } %>
+                            </div>
+
+                            <div>
+                                <div class="d-flex align-items-center border-bottom border-primary border-2 mb-3 pb-2">
+                                    <h3 class="text-primary mb-0">Alumnos</h3>
+                                    <span class="text-muted small ms-3"><%= alumnos.length || 0 %> alumnos</span>
+                                </div>
+                                <% if (alumnos && alumnos.length > 0) { %>
+                                    <div class="list-group list-group-flush">
+                                        <% alumnos.forEach(a => { %>
+                                            <div class="list-group-item border-0 px-0 py-3 d-flex align-items-center gap-3">
+                                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <%= a.usuarios.nombre.charAt(0) %><%= a.usuarios.apellido.charAt(0) %>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-semibold"><%= a.usuarios.nombre %> <%= a.usuarios.apellido %></div>
+                                                </div>
+                                                <div>
+                                                    <% if (isProfesor) { %>
+                                                        <button class="btn btn-sm btn-outline-danger" onclick="removeStudent('<%= clase.id %>', '<%= a.usuarios.id %>', '<%= a.usuarios.nombre %> <%= a.usuarios.apellido %>')">Dar de baja</button>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary bg-opacity-10 text-secondary">Estudiante</span>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                <% } else { %>
+                                    <div class="text-center py-5">
+                                        <p class="text-muted mb-0">No hay alumnos inscritos en esta clase.</p>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-body">
+                            <h3 class="h6 fw-bold mb-3">Anuncios recientes</h3>
+                            <% var announcementPostsPersonas = posts.filter(post => post.tipo !== 'tarea'); %>
+                            <% if (!announcementPostsPersonas || announcementPostsPersonas.length === 0) { %>
+                                <div class="text-muted">No hay anuncios recientes.</div>
+                            <% } else { %>
+                                <% announcementPostsPersonas.forEach(post => { %>
+                                    <div class="card border border-1 rounded-4 mb-3">
+                                        <div class="card-body py-3 px-3">
+                                            <div class="d-flex align-items-start gap-3 mb-2">
+                                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                                                    <i class="fa-solid fa-bullhorn"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold"><%= post.autor ? (post.autor.nombre + ' ' + (post.autor.apellido || '')) : 'MaxGrade' %></div>
+                                                    <small class="text-muted"><%= post.fecha_orden ? new Date(post.fecha_orden).toLocaleDateString() : '' %></small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <div class="mb-1 fw-semibold"><%= post.titulo || 'Anuncio' %></div>
+                                                <% if (isProfesor || (user && post.autor_id === user.id)) { %>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deletePost('<%= post.id %>')">Eliminar</button>
+                                                <% } %>
+                                            </div>
+                                            <p class="small text-muted mb-0"><%= post.descripcion || post.contenido || '' %></p>
+                                            <% if (post.archivo_url) { %>
+                                                <p class="small mb-0 mt-2"><a href="<%= post.archivo_url %>" target="_blank" class="link-primary">Ver archivo adjunto</a></p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sectionRendimiento" class="d-none">
+            <div class="row gx-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-4 gap-3">
+                                <div>
+                                    <h2 class="h5 fw-bold mb-1">Rendimiento de clase</h2>
+                                    <p class="mb-0 text-muted">Métricas de entrega y calificación.</p>
+                                </div>
+                                <% if (classPerformance) { %>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3"><%= classPerformance.totalEstudiantes %> alumnos</span>
+                                <% } %>
+                            </div>
+
+                            <% if (isProfesor) { %>
+                                <% if (classPerformance) { %>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-3">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <p class="text-muted small mb-1">Promedio</p>
+                                                            <h3 class="mb-0 fw-bold"><%= classPerformance.promedioCalificacion %></h3>
+                                                        </div>
+                                                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                            <i class="fa-solid fa-star fa-lg"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <p class="text-muted small mb-1">Entregas</p>
+                                                            <h3 class="mb-0 fw-bold"><%= classPerformance.totalEntregas %></h3>
+                                                        </div>
+                                                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                            <i class="fa-solid fa-check fa-lg"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <p class="text-muted small mb-1">No entregadas</p>
+                                                            <h3 class="mb-0 fw-bold"><%= classPerformance.noEntregadas %></h3>
+                                                        </div>
+                                                        <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                            <i class="fa-solid fa-ban fa-lg"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <p class="text-muted small mb-1">% Entrega</p>
+                                                            <h3 class="mb-0 fw-bold"><%= classPerformance.porcentajeEntrega %>%</h3>
+                                                        </div>
+                                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                            <i class="fa-solid fa-percent fa-lg"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="studentSelector" class="form-label fw-bold">Seleccionar alumno</label>
+                                        <select id="studentSelector" class="form-select" onchange="actualizarRendimientoIndividual()">
+                                            <option value="">-- Selecciona un alumno --</option>
+                                            <% (studentsList || []).forEach(student => { %>
+                                                <option value="<%= student.id %>"><%= student.nombre %> <%= student.apellido %></option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+
+                                    <div id="studentPerformanceSection" class="d-none">
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-3">
+                                                <div class="card border-0 shadow-sm h-100">
+                                                    <div class="card-body">
+                                                        <div class="d-flex align-items-center justify-content-between">
+                                                            <div>
+                                                                <p class="text-muted small mb-1">Promedio</p>
+                                                                <h3 class="mb-0 fw-bold" id="studentAverage">0.00</h3>
+                                                            </div>
+                                                            <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                <i class="fa-solid fa-star fa-lg"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="card border-0 shadow-sm h-100">
+                                                    <div class="card-body">
+                                                        <div class="d-flex align-items-center justify-content-between">
+                                                            <div>
+                                                                <p class="text-muted small mb-1">Entregadas</p>
+                                                                <h3 class="mb-0 fw-bold" id="studentDelivered">0</h3>
+                                                            </div>
+                                                            <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                <i class="fa-solid fa-check fa-lg"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="card border-0 shadow-sm h-100">
+                                                    <div class="card-body">
+                                                        <div class="d-flex align-items-center justify-content-between">
+                                                            <div>
+                                                                <p class="text-muted small mb-1">% Entrega</p>
+                                                                <h3 class="mb-0 fw-bold" id="studentDeliveryPercent">0%</h3>
+                                                            </div>
+                                                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                <i class="fa-solid fa-percent fa-lg"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="card border-0 shadow-sm h-100">
+                                                    <div class="card-body">
+                                                        <div class="d-flex align-items-center justify-content-between">
+                                                            <div>
+                                                                <p class="text-muted small mb-1">Calificadas</p>
+                                                                <h3 class="mb-0 fw-bold" id="studentGraded">0</h3>
+                                                            </div>
+                                                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                <i class="fa-solid fa-clipboard-check fa-lg"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="card border-0 shadow-sm">
+                                                    <div class="card-body">
+                                                        <p class="small text-muted mb-2">A tiempo</p>
+                                                        <h4 class="fw-bold" id="studentOnTime">0</h4>
+                                                        <div class="progress" style="height: 8px;">
+                                                            <div class="progress-bar bg-success" id="studentOnTimeBar" style="width: 0%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card border-0 shadow-sm">
+                                                    <div class="card-body">
+                                                        <p class="small text-muted mb-2">Tarde</p>
+                                                        <h4 class="fw-bold" id="studentLate">0</h4>
+                                                        <div class="progress" style="height: 8px;">
+                                                            <div class="progress-bar bg-warning" id="studentLateBar" style="width: 0%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card border-0 shadow-sm">
+                                                    <div class="card-body">
+                                                        <p class="small text-muted mb-2">No entregadas</p>
+                                                        <h4 class="fw-bold" id="studentNotDelivered">0</h4>
+                                                        <div class="progress" style="height: 8px;">
+                                                            <div class="progress-bar bg-danger" id="studentNotDeliveredBar" style="width: 0%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card border-0 shadow-sm">
+                                                    <div class="card-body">
+                                                        <p class="small text-muted mb-2">Calificadas</p>
+                                                        <h4 class="fw-bold" id="studentTotalGraded">0</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } else { %>
+                                    <div class="text-center py-5">
+                                        <i class="fa-solid fa-inbox fa-3x text-muted opacity-25 mb-3"></i>
+                                        <p class="text-muted mb-0">No hay estudiantes o tareas suficientes para mostrar rendimiento.</p>
+                                    </div>
+                                <% } %>
+                            <% } else { %>
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fa-solid fa-circle-info"></i> El rendimiento de clase solo está disponible para profesores.
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <h3 class="h6 fw-bold mb-3">Anuncios recientes</h3>
+                    <% var announcementPostsRendimiento = posts.filter(post => post.tipo !== 'tarea'); %>
+                    <% if (!announcementPostsRendimiento || announcementPostsRendimiento.length === 0) { %>
+                        <div class="text-muted">No hay anuncios recientes.</div>
+                    <% } else { %>
+                        <% announcementPostsRendimiento.forEach(post => { %>
+                            <div class="card border border-1 rounded-4 mb-3">
+                                <div class="card-body py-3 px-3">
+                                    <div class="d-flex align-items-start gap-3 mb-2">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                                            <i class="fa-solid fa-bullhorn"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold"><%= post.autor ? (post.autor.nombre + ' ' + (post.autor.apellido || '')) : 'MaxGrade' %></div>
+                                            <small class="text-muted"><%= post.fecha_orden ? new Date(post.fecha_orden).toLocaleDateString() : '' %></small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <div class="mb-1 fw-semibold"><%= post.titulo || 'Anuncio' %></div>
+                                        <% if (isProfesor || (user && post.autor_id === user.id)) { %>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deletePost('<%= post.id %>')">Eliminar</button>
+                                        <% } %>
+                                    </div>
+                                    <p class="small text-muted mb-0"><%= post.descripcion || post.contenido || '' %></p>
+                                    <% if (post.archivo_url) { %>
+                                        <p class="small mb-0 mt-2"><a href="<%= post.archivo_url %>" target="_blank" class="link-primary">Ver archivo adjunto</a></p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div id="sectionRubrics" class="d-none">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-4 gap-3">
+                        <div>
+                            <h2 class="h5 fw-bold mb-1">Rúbricas estándar</h2>
+                            <p class="mb-0 text-muted">Gestiona los criterios de calificación reusables.</p>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#rubricModal" onclick="openRubricModal('management', null, '<%= clase.id %>')">
+                            <i class="fa-solid fa-plus me-2"></i> Nueva rúbrica
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Criterio</th>
+                                    <th>Descripción</th>
+                                    <th class="text-center">Puntos máximos</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rubricsTableBody">
+                                <tr><td colspan="4" class="text-center text-muted py-4">Cargando rúbricas...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/public/js/swal-utils.js"></script>
+    <script type="application/json" id="studentPerformanceData"><%- studentPerformanceMapJson || '{}' %></script>
+    <script src="/public/js/dashboard.js"></script>
+    <script src="/public/js/clase.js"></script>
+    <script src="/public/js/support.js"></script>
+    <script src="/public/js/calificar.js"></script>
+    <script src="/public/js/tareas.js"></script>
+    <script src="/public/js/rubrics.js"></script>
+    <script>
+        window.claseId = '<%= clase.id %>';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+           
+            loadRubricsByClass(window.claseId);
+            
+            const modal = document.getElementById('createAssignmentModal');
+            if (modal) {
+                modal.addEventListener('shown.bs.modal', function() {
+                    loadRubricsForAssignment(window.claseId);
+                });
+            }
+        });
+    </script>
+    <script src="/public/js/entrega.js"></script>
+    <%- include('modals/assigmentModal') %>
+    <%- include('modals/classModals') %>
+    <%- include('modals/supportModal') %>
+    <%- include('modals/rubricModal') %>
+</body>
+</html>

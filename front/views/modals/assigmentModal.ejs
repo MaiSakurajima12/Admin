@@ -1,0 +1,120 @@
+<div class="modal fade" id="createAssignmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0" style="background-color: #4c63ff;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-file-import text-white fs-5"></i>
+                    <h5 class="modal-title text-white mb-0">Nueva Tarea</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <form id="assignmentForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="fa-solid fa-heading me-2" style="color: #4c63ff;"></i>Título</label>
+                        <input type="text" id="taskTitle" class="form-control" placeholder="Título de la tarea" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="fa-solid fa-align-left me-2" style="color: #4c63ff;"></i>Instrucciones</label>
+                        <textarea id="taskInstructions" class="form-control" rows="5" placeholder="Instrucciones (opcional)"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold"><i class="fa-solid fa-layer-group me-2" style="color: #4c63ff;"></i>Unidad</label>
+                            <select id="taskUnit" class="form-select">
+                                <option value="">-- Sin unidad --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold"><i class="fa-solid fa-star me-2" style="color: #4c63ff;"></i>Puntos máximos</label>
+                            <input type="number" id="taskPoints" class="form-control" value="100">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="fa-solid fa-calendar me-2" style="color: #4c63ff;"></i>Fecha y hora de entrega</label>
+                        <input type="datetime-local" id="taskDueDate" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="fa-solid fa-paperclip me-2" style="color: #4c63ff;"></i>Adjuntar material (PDF/Imagen)</label>
+                        <input type="file" id="taskFile" name="archivo_guia" class="form-control" accept=".pdf,.jpg,.png">
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold mb-0"><i class="fa-solid fa-star me-2" style="color: #4c63ff;"></i>Rúbricas estándar</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#rubricModal" onclick="openRubricModal('assignment', null, '<%= clase.id %>')">
+                                <i class="fa-solid fa-plus me-1"></i>Crear rúbrica
+                            </button>
+                        </div>
+                        <div id="rubricsCheckboxContainer" class="border rounded p-3 bg-light" style="max-height: 220px; overflow-y: auto;">
+                            <p class="small text-muted mb-0"><i class="fa-solid fa-spinner fa-spin me-2"></i>Cargando rúbricas...</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="publishAssignment('<%= clase.id %>', this)"><i class="fa-solid fa-check me-2"></i>Asignar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editAssignmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0" style="background-color: #16b896;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-pen text-white fs-5"></i>
+                    <h5 class="modal-title text-white mb-0">Asignar a unidad</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa-solid fa-layer-group me-2" style="color: #4c63ff;"></i>Seleccionar unidad</label>
+                    <select id="editTaskUnit" class="form-select">
+                        <option value="">-- Sin unidad --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="saveTaskUnit()"><i class="fa-solid fa-save me-2"></i>Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createUnitModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0" style="background-color: #7c3aed;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-white fs-5"></i>
+                    <h5 class="modal-title text-white mb-0">Nueva Unidad</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <form id="unitForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="fa-solid fa-hashtag me-2" style="color: #4c63ff;"></i>Número de unidad</label>
+                        <input type="number" id="unitNumber" class="form-control" placeholder="Ej: 1" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="fa-solid fa-heading me-2" style="color: #4c63ff;"></i>Nombre de la unidad</label>
+                        <input type="text" id="unitName" class="form-control" placeholder="Ej: Unidad 1: Introducción" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="fa-solid fa-align-left me-2" style="color: #4c63ff;"></i>Descripción (opcional)</label>
+                        <textarea id="unitDescription" class="form-control" rows="3" placeholder="Descripción de la unidad"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createUnit('<%= clase.id %>', this)"><i class="fa-solid fa-check me-2"></i>Crear unidad</button>
+            </div>
+        </div>
+    </div>
+</div>

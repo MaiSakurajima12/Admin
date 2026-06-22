@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaxGrade | Crear Cuenta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/auth.css">
+</head>
+<body>
+    <div class="auth-page">
+        <section class="auth-side">
+            <div class="circle"></div>
+            <div class="content">
+                <h1>Únete a MaxGrade</h1>
+                <p>Regístrate y comienza a gestionar tus clases de forma fácil y profesional.</p>
+            </div>
+        </section>
+
+        <section class="auth-main">
+            <div class="auth-card">
+                <div class="auth-brand">
+                    <img src="/public/img/maxgrade1.jpg" alt="Logo MaxGrade">
+                    <h2>MaxGrade</h2>
+                </div>
+
+                <h3>Crear Cuenta</h3>
+                <p class="subtitle">Completa tus datos para comenzar a usar la plataforma.</p>
+
+                <form id="registerForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="nombre" placeholder="Nombre" required>
+                                <label for="nombre">Nombre</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="apellido" placeholder="Apellido" required>
+                                <label for="apellido">Apellido</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3 mt-3">
+                        <input type="email" class="form-control" id="email" placeholder="nombre@ejemplo.com" required>
+                        <label for="email">Correo electrónico</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="password" placeholder="Contraseña" maxlength="16" required>
+                        <label for="password">Contraseña (8-16 caracteres)</label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" value="" id="acceptTerms" required>
+                        <label class="form-check-label small" for="acceptTerms">
+                            Acepto los <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Términos y condiciones</a> y el <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Aviso de privacidad</a>.
+                        </label>
+                    </div>
+
+                    <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+                    <div id="successMessage" class="alert alert-success d-none" role="alert">
+                        ¡Registro exitoso! Redirigiendo...
+                    </div>
+
+                    <button class="btn btn-primary w-100" type="submit" id="regBtn">Crear mi cuenta</button>
+
+                    <hr>
+
+                    <div class="link-row">
+                        ¿Ya tienes una cuenta? <a href="/login">Inicia sesión</a>
+                    </div>
+                     <div class="link-row">
+                         <a href="/">Volver al menu</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/public/js/swal-utils.js"></script>
+    <script src="/public/js/register.js"></script>
+        <!-- Terms Modal -->
+        <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="termsModalLabel">Términos y condiciones - MaxGrade</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¡Bienvenido a MaxGrade!</p>
+                        <p>Estos términos y condiciones describen las reglas y regulaciones para el uso del sitio web de Uxmal, ubicado en https://uxmal-6t33.vercel.app/.</p>
+                        <p>Al acceder a este sitio web, usted acepta estos términos y condiciones. Si no está de acuerdo con todos los términos y condiciones aquí establecidos, no continúe utilizando MaxGrade.</p>
+                        <p>La siguiente terminología se aplica a estos Términos y Condiciones, Declaración de Privacidad y Aviso Legal, y a todos los Acuerdos: "Cliente", "Usted" y "Su" se refieren a usted, la persona que inicia sesión en este sitio web y cumple con los términos y condiciones de la Compañía. "La Compañía", "Nosotros", "Nuestro" y "Nos" se refieren a nuestra Compañía. "Parte", "Partes" o "Nosotros" se refieren tanto al Cliente como a nosotros. Todos los términos se refieren a la oferta, aceptación y contraprestación del pago necesario para llevar a cabo el proceso de nuestra asistencia al Cliente de la manera más apropiada con el propósito expreso de satisfacer las necesidades del Cliente con respecto a la prestación de los servicios declarados por la Compañía, de conformidad con y sujeto a la legislación vigente de los Países Bajos. Cualquier uso de la terminología anterior u otras palabras en singular, plural, mayúsculas y/o él/ella o ellos, se consideran intercambiables y, por lo tanto, se refieren a lo mismo.</p>
+                        <h6>Cookies</h6>
+                        <p>Utilizamos cookies. Al acceder a MaxGrade , usted acepta el uso de cookies de acuerdo con la Política de privacidad de Uxmal.</p>
+                        <p>La mayoría de los sitios web interactivos utilizan cookies para recuperar los datos del usuario en cada visita. Nuestro sitio web utiliza cookies para habilitar ciertas funciones y facilitar la navegación a los visitantes. Algunos de nuestros socios afiliados o publicitarios también pueden utilizar cookies.</p>
+                        <h6>Licencia</h6>
+                        <p>Salvo que se indique lo contrario, Uxmal y/o sus licenciantes son titulares de los derechos de propiedad intelectual de todo el material presente en MaxGrade . Todos los derechos de propiedad intelectual están reservados. Usted puede acceder a este material desde MaxGrade para su uso personal, sujeto a las restricciones establecidas en estos términos y condiciones.</p>
+                        <p>No debes:</p>
+                        <ul>
+                            <li>Republicar material del sitio web MaxGrade</li>
+                            <li>Vender, alquilar o sublicenciar material del sitio web MaxGrade</li>
+                            <li>Reproducir, duplicar o copiar material del sitio web MaxGrade</li>
+                            <li>Redistribuir contenido del sitio web MaxGrade</li>
+                        </ul>
+                        <p>El presente Acuerdo entrará en vigor en la fecha de hoy.</p>
+                        <p>... (texto completo incluido) ...</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="privacyModalLabel">Aviso de privacidad - MaxGrade</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>AVISO DE PRIVACIDAD</strong></p>
+                        <p>Uxmal, comercialmente conocido como MaxGrade, con domicilio en [Dirección completa], es el responsable del uso y protección de sus datos personales.</p>
+                        <h6>FINALIDADES PRIMARIAS</h6>
+                        <p>Los datos personales que recabamos de usted, los utilizaremos para las siguientes finalidades que son necesarias para el servicio que solicita:</p>
+                        <ul>
+                            <li>Prestación de cualquier servicio solicitado</li>
+                        </ul>
+                        <h6>DATOS PERSONALES RECABADOS</h6>
+                        <p>Para las finalidades señaladas en el presente aviso de privacidad, podemos recabar sus datos de identificación y contacto.</p>
+                        <h6>DERECHOS ARCO</h6>
+                        <p>Usted tiene derecho a conocer qué datos personales tenemos de usted, para qué los utilizamos y las condiciones del uso que les damos (Acceso). Asimismo, es su derecho solicitar la corrección de su información personal en caso de que esté desactualizada, sea inexacta o incompleta (Rectificación); que la eliminemos de nuestros registros o bases de datos cuando considere que la misma no está siendo utilizada adecuadamente (Cancelación); así como oponerse al uso de sus datos personales para fines específicos (Oposición). Estos derechos se conocen como derechos ARCO.</p>
+                        <p>Para el ejercicio de cualquiera de los derechos ARCO, usted deberá presentar la solicitud respectiva a través de Al mismo correo electronico donde se envio la petición. La respuesta a su solicitud será atendida en un plazo máximo de 15 días hábiles.</p>
+                        <h6>DATOS RECABADOS POR EL SITIO WEB</h6>
+                        <p>Nuestro sitio web recaba automáticamente los siguientes datos:</p>
+                        <ul>
+                            <li>Identificadores, nombre de usuario y contraseñas de sesión</li>
+                        </ul>
+                        <h6>CONTACTO</h6>
+                        <p>Para más información sobre este aviso de privacidad, puede contactarnos en:</p>
+                        <p>Correo electrónico: uxmalemp@gmail.com</p>
+                        <p>Sitio web: https://uxmal-6t33.vercel.app/</p>
+                        <p>Última actualización: 4/29/2026</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>
+</html>
