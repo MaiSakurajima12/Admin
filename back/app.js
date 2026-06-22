@@ -12,6 +12,8 @@ const unitsRoutes = require('./routes/unitsRoutes');
 const rubricRoutes = require('./routes/rubricRoutes');
 const postRoutes = require('./routes/postRoutes');
 const supportRoutes = require('./routes/supportRoutes');
+const faqRoutes = require('./routes/faqRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const SupportModel = require('./model/supportModel');
 const integrationRoutes = require('./routes/integrationRoutes');
 const PostModel = require('./model/postModel');
@@ -19,6 +21,7 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const { isSupport } = require('./middleware/checkSupport');
+const { isAdmin } = require('./middleware/checkAdmin');
 
 const app = express();
 
@@ -47,6 +50,8 @@ app.use('/api/units', authenticateToken, unitsRoutes);
 app.use('/api/rubrics', authenticateToken, rubricRoutes);
 app.use('/api/posts', authenticateToken, postRoutes);
 app.use('/api/support', authenticateToken, supportRoutes);
+app.use('/api/faqs', authenticateToken, faqRoutes);
+app.use('/api/admin', authenticateToken, isAdmin, adminRoutes);
 app.use('/api/integrations', authenticateToken, integrationRoutes);
 
 app.get('/', (req, res) => {
@@ -131,6 +136,16 @@ app.get('/support', authenticateToken, isSupport, async (req, res) => {
         res.render('support_dashboard', { user });
     } catch (err) {
         console.error('Error loading support dashboard:', err);
+        res.redirect('/dashboard');
+    }
+});
+
+app.get('/admin', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const user = req.user || req.session?.user;
+        res.render('admin_dashboard', { user });
+    } catch (err) {
+        console.error('Error rendering admin panel:', err);
         res.redirect('/dashboard');
     }
 });

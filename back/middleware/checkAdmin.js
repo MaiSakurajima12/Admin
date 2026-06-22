@@ -1,6 +1,6 @@
 const supabase = require('../config/db');
 
-exports.isSupport = async (req, res, next) => {
+exports.isAdmin = async (req, res, next) => {
     const user = req.user || req.session?.user;
     if (!user) {
         if (req.accepts('application/json')) {
@@ -9,12 +9,14 @@ exports.isSupport = async (req, res, next) => {
         return res.redirect('/login');
     }
 
-    if (user.is_support) return next();
+    if (user.is_admin) {
+        return next();
+    }
 
     if (req.accepts('application/json')) {
-        return res.status(403).json({ error: 'Acceso restringido' });
+        return res.status(403).json({ error: 'Acceso restringido. Se requiere permiso de administrador.' });
     }
     return res.redirect('/dashboard');
 };
 
-module.exports = { isSupport: exports.isSupport };
+module.exports = { isAdmin: exports.isAdmin };

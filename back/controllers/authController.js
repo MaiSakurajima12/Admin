@@ -85,8 +85,14 @@ exports.login = async (req, res) => {
             apellido: usuario.apellido,
             email: usuario.email,
             rol: usuario.rol,
+            is_admin: usuario.is_admin || false,
             is_support: usuario.is_support || false
         };
+
+        await supabase
+            .from('usuarios')
+            .update({ ultimo_login: new Date().toISOString() })
+            .eq('id', usuario.id);
 
         const token = jwt.sign(userData, process.env.JWT_SECRET || 'tu_clave_secreta', {
             expiresIn: '24h'

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uxmal | Panel de administrador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/101326ea39.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/dashboard.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+        <div class="container-fluid px-0">
+            <div class="navbar-inner d-flex align-items-center position-relative w-100">
+                <a class="navbar-brand d-flex align-items-center me-2" href="/dashboard">
+                    <img src="/public/img/maxgradeplacapng.png" alt="Uxmal" class="navbar-logo">
+                </a>
+                <div class="navbar-actions d-flex align-items-center gap-3 ms-auto">
+                    <a href="/dashboard" class="nav-action text-dark small d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Volver al dashboard</span>
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn avatar-circle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <% if (user && user.avatar_url) { %>
+                                <img src="<%= user.avatar_url %>" alt="Avatar" class="avatar-image">
+                            <% } else { %>
+                                <span class="avatar-fallback"><%= user && user.nombre ? user.nombre.charAt(0).toUpperCase() : '?' %></span>
+                            <% } %>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/perfil"><i class="fa-solid fa-user me-2"></i>Perfil</a></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar sesión</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+            <div>
+                <h1 class="h3 mb-1">Panel de administrador</h1>
+                <p class="text-muted mb-0">Visión centralizada de usuarios, académico, soporte y uso de FAQs.</p>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <label class="mb-0">Rango</label>
+                <select id="rangeSelect" class="form-select form-select-sm" style="width: auto;">
+                    <option value="7d">Últimos 7 días</option>
+                    <option value="30d" selected>Últimos 30 días</option>
+                    <option value="90d">Últimos 90 días</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="adminLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-3">Cargando métricas...</p>
+        </div>
+
+        <div id="adminContent" class="d-none">
+            <section class="mb-4">
+                <div class="row g-3">
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-4">
+                                <p class="text-uppercase fw-semibold mb-2">Usuarios registrados</p>
+                                <h3 id="totalUsers" class="mb-1">0</h3>
+                                <p class="text-muted mb-0">Activos últimos 30 días: <span id="activeUsers">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-4">
+                                <p class="text-uppercase fw-semibold mb-2">Académico</p>
+                                <h3 id="activeClasses" class="mb-1">0</h3>
+                                <p class="text-muted mb-0">Clases activas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-4">
+                                <p class="text-uppercase fw-semibold mb-2">Rúbricas</p>
+                                <h3 id="rubricsCreated" class="mb-1">0</h3>
+                                <p class="text-muted mb-0">Rubricas creadas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-4">
+                                <p class="text-uppercase fw-semibold mb-2">Soporte</p>
+                                <h3 id="totalReports" class="mb-1">0</h3>
+                                <p class="text-muted mb-0">Tickets totales</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-4">
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Usuarios por rol</h5>
+                                <ul class="list-group list-group-flush mt-3">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+                                        Profesores
+                                        <span id="profesoresCount" class="badge bg-primary rounded-pill">0</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+                                        Estudiantes
+                                        <span id="estudiantesCount" class="badge bg-success rounded-pill">0</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+                                        Técnicos
+                                        <span id="soporteCount" class="badge bg-warning rounded-pill">0</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+                                        Administradores
+                                        <span id="adminCount" class="badge bg-secondary rounded-pill">0</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Tendencias</h5>
+                                <canvas id="trendChart" height="160"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-4">
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Entregas y calificaciones</h5>
+                                <p class="text-muted">Total entregas: <span id="submissionsTotal">0</span></p>
+                                <p class="text-muted">Calificadas: <span id="submissionsGraded">0</span></p>
+                                <p class="text-muted">Pendientes: <span id="submissionsPending">0</span></p>
+                                <p class="text-muted">Promedio de calificaciones: <span id="averageGrade">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Soporte por estado</h5>
+                                <canvas id="supportStateChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">FAQ — Uso por el cliente</h5>
+                                <p class="text-muted mb-0">Identifica las preguntas frecuentes más consultadas y la correlación con tickets.</p>
+                            </div>
+                            <button id="exportFaqCsv" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-file-csv me-2"></i>Exportar CSV</button>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-4">
+                                <div class="border rounded-3 p-3 bg-light">
+                                    <div class="text-muted">Interacciones FAQ</div>
+                                    <div id="faqTotalInteractions" class="fs-4 fw-semibold">0</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="border rounded-3 p-3 bg-light">
+                                    <div class="text-muted">Tickets antes de FAQ</div>
+                                    <div id="faqTicketsBefore" class="fs-4 fw-semibold">0</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="border rounded-3 p-3 bg-light">
+                                    <div class="text-muted">Tickets después de FAQ</div>
+                                    <div id="faqTicketsAfter" class="fs-4 fw-semibold">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Pregunta</th>
+                                        <th>Categoría</th>
+                                        <th>Usos</th>
+                                        <th>Activo</th>
+                                        <th>Orden</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="faqUsageTableBody">
+                                    <tr><td colspan="5" class="text-center text-muted py-4">Cargando preguntas frecuentes...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">Administrar FAQs</h5>
+                                <p class="text-muted mb-0">CRUD de preguntas frecuentes dentro del panel de administrador.</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="openFaqModal()"><i class="fa-solid fa-plus me-2"></i>Crear FAQ</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Pregunta</th>
+                                        <th>Categoría</th>
+                                        <th>Activo</th>
+                                        <th>Usos</th>
+                                        <th>Orden</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminFaqsTableBody">
+                                    <tr><td colspan="6" class="text-center text-muted py-4">Cargando administración de FAQs...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="modal fade" id="faqFormModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="faqFormTitle">Crear FAQ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="faqForm">
+                        <input type="hidden" id="faqId" value="">
+                        <div class="mb-3">
+                            <label for="faqQuestion" class="form-label">Pregunta</label>
+                            <textarea id="faqQuestion" class="form-control" rows="2" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="faqAnswer" class="form-label">Respuesta</label>
+                            <textarea id="faqAnswer" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="faqCategory" class="form-label">Categoría</label>
+                                <input id="faqCategory" class="form-control" type="text" placeholder="Ej. Cuenta, Plataforma, Evaluación">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="faqOrder" class="form-label">Orden</label>
+                                <input id="faqOrder" class="form-control" type="number" value="0">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Activo</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="faqActive" checked>
+                                    <label class="form-check-label" for="faqActive">Sí</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="faqFormError" class="alert alert-danger d-none mt-3"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="submitFaqForm(this)">Guardar FAQ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/public/js/swal-utils.js"></script>
+    <script src="/public/js/admin.js"></script>
+</body>
+</html>

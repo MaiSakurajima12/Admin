@@ -19,6 +19,19 @@
                         <option value="Sugerencia de mejora/comentarios">Sugerencia de mejora/comentarios</option>
                     </select>
                 </div>
+                <div class="mb-4 border rounded-3 p-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-1">Preguntas frecuentes</h6>
+                            <p class="small text-muted mb-0">Busca antes de enviar un ticket y resuelve dudas comunes.</p>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadSupportFaqs()">Actualizar</button>
+                    </div>
+                    <div class="mb-3">
+                        <input id="faqSearch" type="search" class="form-control" placeholder="Buscar pregunta frecuente" oninput="filterFaqs()">
+                    </div>
+                    <div id="faqList" class="accordion"></div>
+                </div>
                 <div class="mb-3">
                     <label for="supportDescription" class="form-label fw-bold"><i class="fa-solid fa-pen-to-square me-2" style="color: #4c63ff;"></i>Descripción del problema</label>
                     <textarea id="supportDescription" class="form-control" rows="4" maxlength="1000" placeholder="Describe lo que sucedió..." required></textarea>

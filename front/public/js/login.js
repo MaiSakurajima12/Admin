@@ -29,8 +29,9 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
             localStorage.setItem('user', JSON.stringify(result.user));
             await showSuccess('¡Bienvenido!', 'Redirigiendo...');
 
-            const isSupport = result.user?.is_support || result.user?.rol === 'soporte';
-            window.location.href = isSupport ? '/support' : '/dashboard';
+            const isAdmin = result.user?.is_admin;
+            const isSupport = result.user?.is_support;
+            window.location.href = isAdmin ? '/admin' : isSupport ? '/support' : '/dashboard';
         } else {
             showError('Error al iniciar sesión', result.error || 'Credenciales incorrectas');
         }
