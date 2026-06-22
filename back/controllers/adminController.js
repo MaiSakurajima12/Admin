@@ -17,6 +17,6 @@ exports.getMetrics = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Error obteniendo métricas de admin:', err);
-        res.status(500).json({ error: 'No se pudieron obtener las métricas' });
+        res.status(500).json({ error: err?.message || 'No se pudieron obtener las métricas' });
     }
 };
