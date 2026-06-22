@@ -67,6 +67,10 @@ async function publishAssignment(claseId, btn) {
     }
 }
 
+    // Cache units per class to avoid disappearing selects when backend
+    // returns an empty list in edge cases.
+    const unitsCache = {};
+
 async function deleteAssignment(assignmentId) {
     showConfirm(
         '¿Eliminar tarea?',
@@ -112,20 +116,27 @@ async function loadUnitsForClass(claseId) {
 
         if (!selectUnit) return;
 
-        // Only replace options when the server returns at least one unit.
-        // This prevents the select from being cleared unexpectedly when
-        // the backend returns an empty array in certain flows.
-        if (Array.isArray(units) && units.length > 0) {
-            selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
-            units.forEach(unit => {
-                const option = document.createElement('option');
-                option.value = unit.id;
-                option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
-                selectUnit.appendChild(option);
-            });
-        } else {
-            // keep existing options (do not clear) and log for debugging
-            console.warn('loadUnitsForClass: no units returned, preserving existing options');
+            // Update cache when server returns units
+            if (Array.isArray(units) && units.length > 0) {
+                unitsCache[claseId] = units;
+                selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
+                units.forEach(unit => {
+                    const option = document.createElement('option');
+                    option.value = unit.id;
+                    option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
+                    selectUnit.appendChild(option);
+                });
+            } else if (unitsCache[claseId] && Array.isArray(unitsCache[claseId]) && unitsCache[claseId].length > 0) {
+                // Use cached units if server returned empty
+                selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
+                unitsCache[claseId].forEach(unit => {
+                    const option = document.createElement('option');
+                    option.value = unit.id;
+                    option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
+                    selectUnit.appendChild(option);
+                });
+            } else {
+                console.warn('loadUnitsForClass: no units returned and no cache available');
         }
     } catch (error) {
         console.error('Error al cargar unidades:', error);
@@ -167,6 +178,30 @@ async function createUnit(claseId, btn) {
 
             document.getElementById('unitForm').reset();
 
+            // Try to parse returned unit and update cache/select immediately
+            const created = await response.json().catch(() => null);
+            if (created && created.id) {
+                unitsCache[claseId] = unitsCache[claseId] || [];
+                // avoid duplicate
+                if (!unitsCache[claseId].some(u => u.id === created.id)) {
+                    unitsCache[claseId].push(created);
+                }
+
+                // update selects on page to include the new unit
+                const select1 = document.getElementById('taskUnit');
+                const select2 = document.getElementById('editTaskUnit');
+                [select1, select2].forEach(sel => {
+                    if (!sel) return;
+                    // if option already exists, skip
+                    if (sel.querySelector(`option[value="${created.id}"]`)) return;
+                    const opt = document.createElement('option');
+                    opt.value = created.id;
+                    opt.textContent = `${created.numero_unidad}. ${created.nombre}`;
+                    sel.appendChild(opt);
+                });
+            }
+
+            // Attempt a full reload of units from server (non-destructive thanks to cache)
             loadUnitsForClass(claseId);
         } else {
             const errorData = await response.json();
@@ -283,8 +318,9 @@ async function loadUnitsForEditModal(claseId) {
         const selectUnit = document.getElementById('editTaskUnit');
 
         if (!selectUnit) return;
-
+        // Update cache and populate; fallback to cache when empty
         if (Array.isArray(units) && units.length > 0) {
+            unitsCache[claseId] = units;
             selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
             units.forEach(unit => {
                 const option = document.createElement('option');
@@ -292,8 +328,16 @@ async function loadUnitsForEditModal(claseId) {
                 option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
                 selectUnit.appendChild(option);
             });
+        } else if (unitsCache[claseId] && Array.isArray(unitsCache[claseId]) && unitsCache[claseId].length > 0) {
+            selectUnit.innerHTML = '<option value="">-- Sin unidad --</option>';
+            unitsCache[claseId].forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit.id;
+                option.textContent = `${unit.numero_unidad}. ${unit.nombre}`;
+                selectUnit.appendChild(option);
+            });
         } else {
-            console.warn('loadUnitsForEditModal: no units returned, preserving existing options');
+            console.warn('loadUnitsForEditModal: no units returned and no cache available');
         }
     } catch (error) {
         console.error('Error al cargar unidades:', error);

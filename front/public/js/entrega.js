@@ -5,20 +5,26 @@ document.addEventListener('change', function(e) {
         // render a preview for images / pdfs
         const previewContainer = document.getElementById('submissionPreview');
         if (previewContainer) {
+            // clear previous preview
             previewContainer.innerHTML = '';
             const file = e.target.files[0];
             if (file) {
                 if (file.type.startsWith('image/')) {
                     const img = document.createElement('img');
-                    img.src = URL.createObjectURL(file);
+                    const url = URL.createObjectURL(file);
+                    img.src = url;
                     img.className = 'img-fluid rounded';
-                    img.style.maxHeight = '320px';
+                    img.style.maxHeight = '80vh';
+                    img.onload = () => {
+                        try { URL.revokeObjectURL(url); } catch (e) {}
+                    };
                     previewContainer.appendChild(img);
                 } else if (file.name && /\.pdf$/i.test(file.name)) {
                     const embed = document.createElement('iframe');
-                    embed.src = URL.createObjectURL(file);
+                    const url = URL.createObjectURL(file);
+                    embed.src = url;
                     embed.style.width = '100%';
-                    embed.style.height = '420px';
+                    embed.style.height = '70vh';
                     embed.setAttribute('aria-label', 'Vista previa PDF');
                     previewContainer.appendChild(embed);
                 } else {
@@ -120,17 +126,17 @@ function openSubmissionPreview(url) {
             imageAlt: 'Vista previa',
             showConfirmButton: true,
             confirmButtonText: 'Cerrar',
-            width: '80%'
+            width: '90%'
         });
         return;
     }
 
     if (isPdf) {
         Swal.fire({
-            html: `<iframe src="${url}" style="width:100%;height:70vh;border:0;" aria-label="Vista previa PDF"></iframe>`,
+            html: `<iframe src="${url}" style="width:100%;height:80vh;border:0;" aria-label="Vista previa PDF"></iframe>`,
             showConfirmButton: true,
             confirmButtonText: 'Cerrar',
-            width: '90%'
+            width: '95%'
         });
         return;
     }
