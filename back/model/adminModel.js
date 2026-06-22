@@ -197,7 +197,7 @@ class AdminModel {
     static async getSupportMetrics() {
         const reportsResp = await supabase
             .from('reportes_soporte')
-            .select('id, estado, tipo_problema, fecha_creacion, updated_at, asignado_a, usuario_id');
+            .select('id, estado, tipo_problema, fecha_creacion, usuario_id');
 
         if (reportsResp.error) {
             console.error('Error fetching support reports for metrics:', reportsResp.error);
@@ -213,10 +213,6 @@ class AdminModel {
             technicians: []
         };
 
-        let resolutionSumMs = 0;
-        let resolutionCount = 0;
-        const techMap = new Map();
-
         rows.forEach((row) => {
             if (row.estado) {
                 totals.byState[row.estado] = (totals.byState[row.estado] || 0) + 1;
@@ -224,33 +220,8 @@ class AdminModel {
             if (row.tipo_problema) {
                 totals.byType[row.tipo_problema] = (totals.byType[row.tipo_problema] || 0) + 1;
             }
-            if (row.asignado_a) {
-                techMap.set(row.asignado_a, (techMap.get(row.asignado_a) || 0) + 1);
-            }
-            const start = row.fecha_creacion ? new Date(row.fecha_creacion) : null;
-            const end = row.fecha_resolucion ? new Date(row.fecha_resolucion) : row.updated_at ? new Date(row.updated_at) : null;
-            if (start && end && end > start) {
-                resolutionSumMs += end - start;
-                resolutionCount += 1;
-            }
         });
 
-        if (resolutionCount > 0) {
-            totals.avgResolutionHours = Number((resolutionSumMs / resolutionCount / 3600000).toFixed(1));
-        }
-
-        const techIds = Array.from(techMap.keys());
-        let topTechnicians = [];
-        if (techIds.length > 0) {
-            const { data: techs } = await supabase.from('usuarios').select('id, nombre, apellido').in('id', techIds);
-            topTechnicians = (techs || []).map((tech) => ({
-                id: tech.id,
-                nombre: `${tech.nombre || ''} ${tech.apellido || ''}`.trim(),
-                tickets: techMap.get(tech.id) || 0
-            })).sort((a, b) => b.tickets - a.tickets).slice(0, 5);
-        }
-
-        totals.technicians = topTechnicians;
         return totals;
     }
 
