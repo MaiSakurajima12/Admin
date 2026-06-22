@@ -11,11 +11,12 @@ document.addEventListener('submit', function(e) {
     }
 });
 
-async function submitTask(tareaId) {
+async function submitTask(tareaId, btn) {
     const fileInput = document.getElementById('submissionFile');
     const comentario = document.getElementById('comentarioAlumno')?.value.trim() || '';
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const estudianteId = user.id;
+    const btnEl = btn || document.querySelector('button[onclick*="submitTask("]') || null;
 
     console.log('submitTask invoked', { tareaId, fileName: fileInput?.files[0]?.name, comentario, estudianteId });
 
@@ -27,17 +28,18 @@ async function submitTask(tareaId) {
             'Cancelar'
         ).then(result => {
             if (!result.isConfirmed) return;
-            submitTaskWithoutFile(tareaId, comentario, estudianteId);
+            submitTaskWithoutFile(tareaId, comentario, estudianteId, null, btnEl);
         });
         return;
     }
 
     if (!validateFileSize(fileInput.files[0], 20)) return;
 
-    submitTaskWithoutFile(tareaId, comentario, user.id, fileInput.files[0]);
+    submitTaskWithoutFile(tareaId, comentario, user.id, fileInput.files[0], btnEl);
 }
 
-async function submitTaskWithoutFile(tareaId, comentario, estudianteId, archivo = null) {
+async function submitTaskWithoutFile(tareaId, comentario, estudianteId, archivo = null, btnEl = null) {
+    setButtonLoading(btnEl, true, 'Entregando...');
     showLoading('Entregando tarea', 'Por favor espere...');
 
     const formData = new FormData();
@@ -66,6 +68,8 @@ async function submitTaskWithoutFile(tareaId, comentario, estudianteId, archivo 
         }
     } catch (error) {
         showError('Error de conexión', 'No se pudo conectar con el servidor');
+    } finally {
+        setButtonLoading(btnEl, false);
     }
 }
 

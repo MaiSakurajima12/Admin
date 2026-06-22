@@ -254,11 +254,11 @@
     <div class="modal fade" id="faqFormModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="faqFormTitle"><i class="fa-solid fa-circle-question me-2"></i>Crear FAQ</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <div class="modal-header border-0" style="background-color: #4c63ff;">
+                    <h5 class="modal-title text-white mb-0" id="faqFormTitle"><i class="fa-solid fa-circle-question me-2"></i>Crear FAQ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body pt-4">
                     <form id="faqForm">
                         <input type="hidden" id="faqId" value="">
                         <div class="mb-3">
@@ -285,8 +285,8 @@
                         <div id="faqFormError" class="alert alert-danger d-none mt-3"></div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-xmark me-2"></i>Cancelar</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" onclick="submitFaqForm(this)"><i class="fa-solid fa-floppy-disk me-2"></i>Guardar FAQ</button>
                 </div>
             </div>

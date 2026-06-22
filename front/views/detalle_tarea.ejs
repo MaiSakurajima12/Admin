@@ -167,7 +167,7 @@
                                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="startVoiceDictation('comentarioAlumno', this)">Dictar comentario</button>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-primary w-100 py-2" onclick="submitTask('<%= tarea.id %>')">Entregar tarea</button>
+                                <button type="button" class="btn btn-primary w-100 py-2" data-loading-label="Entregando..." onclick="submitTask('<%= tarea.id %>', this)">Entregar tarea</button>
                             </form>
                         <% } %>
                     </div>

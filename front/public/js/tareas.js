@@ -289,7 +289,7 @@ async function loadUnitsForEditModal(claseId) {
     }
 }
 
-async function saveTaskUnit() {
+async function saveTaskUnit(btn) {
     const unitId = document.getElementById('editTaskUnit')?.value;
     const taskId = document.getElementById('editAssignmentModal')?.dataset.taskId;
 
@@ -298,6 +298,8 @@ async function saveTaskUnit() {
         return;
     }
 
+    const btnEl = btn || getPrimaryButtonInModal('editAssignmentModal');
+    setButtonLoading(btnEl, true, 'Guardando...');
     showLoading('Actualizando tarea', 'Por favor espere...');
 
     try {
@@ -324,6 +326,8 @@ async function saveTaskUnit() {
     } catch (err) {
         console.error('Error:', err);
         showError('Error de conexión', 'No se pudo conectar con el servidor');
+    } finally {
+        setButtonLoading(btnEl, false);
     }
 }
 

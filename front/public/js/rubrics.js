@@ -196,7 +196,7 @@ function editRubric(id, criterio, descripcion, puntos) {
 }
 
 
-async function saveRubricChanges() {
+async function saveRubricChanges(btn) {
     const id = document.getElementById('editRubricId').value;
     const criterio = document.getElementById('editRubricCriterio').value;
     const descripcion = document.getElementById('editRubricDescripcion').value || '';
@@ -206,6 +206,8 @@ async function saveRubricChanges() {
     if (!validateNotEmpty(puntos_maximos, 'Los puntos máximos')) return;
     if (!validateRange(puntos_maximos, 1, 100, 'Los puntos máximos')) return;
 
+    const btnEl = btn || getPrimaryButtonInModal('editRubricModal');
+    setButtonLoading(btnEl, true, 'Guardando...');
     try {
         const response = await fetch(`/api/rubrics/${id}`, {
             method: 'PUT',
@@ -229,6 +231,8 @@ async function saveRubricChanges() {
         refreshRubricViews();
     } catch (err) {
         showError('Error', err.message);
+    } finally {
+        setButtonLoading(btnEl, false);
     }
 }
 

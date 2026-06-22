@@ -24,7 +24,7 @@
             </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary px-4" onclick="createNewRubric(this)"><i class="fa-solid fa-check me-2"></i>Crear</button>
+                <button type="button" class="btn btn-primary px-4" data-loading-label="Creando..." onclick="createNewRubric(this)"><i class="fa-solid fa-check me-2"></i>Crear</button>
             </div>
         </div>
     </div>
@@ -57,7 +57,7 @@
             </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary px-4" onclick="saveRubricChanges()"><i class="fa-solid fa-save me-2"></i>Guardar</button>
+                <button type="button" class="btn btn-primary px-4" data-loading-label="Guardando..." onclick="saveRubricChanges(this)"><i class="fa-solid fa-save me-2"></i>Guardar</button>
             </div>
         </div>
     </div>
