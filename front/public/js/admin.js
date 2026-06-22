@@ -284,7 +284,7 @@ async function submitFaqForm(btn) {
     errorBox.classList.add('d-none');
 
     try {
-        const payload = { pregunta: question, respuesta: answer, categoria: category, activo };
+        const payload = { pregunta: question, respuesta: answer, categoria: category, activo: active };
         const url = faqId ? `/api/faqs/admin/${faqId}` : '/api/faqs/admin';
         const method = faqId ? 'PUT' : 'POST';
         await fetchJson(url, {
