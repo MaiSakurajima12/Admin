@@ -781,6 +781,18 @@ body {
     font-weight: 800;
     font-size: 1rem;
 }
+.kpi-icon.bg-blue { background-color: #4c63ff; }
+.kpi-icon.bg-green { background-color: #15b893; }
+.kpi-icon.bg-purple { background-color: #7c3aed; }
+.kpi-icon i { font-size: 1.05rem; }
+
+/* Range select tweaks: prevent text wrapping and ensure caret doesn't overlap */
+#rangeSelect {
+    min-width: 150px;
+    white-space: nowrap;
+    padding-right: 2.4rem; /* room for native caret */
+}
+#rangeSelect option { white-space: nowrap; }
 .kpi-card h4 { margin: 0; font-size: 1.15rem; line-height: 1; }
 .kpi-card p { margin: 0; font-size: 0.85rem; color: var(--dashboard-muted); }
 
